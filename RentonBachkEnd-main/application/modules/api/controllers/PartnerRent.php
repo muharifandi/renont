@@ -91,7 +91,7 @@ class PartnerRent extends REST_Base_Controller
 	/** POST api/partnerRent/vehicles -- create. body: vehicle fields + photos[] (filenames from vehicle_photos_post) */
 	public function vehicles_post()
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 		$id = $this->PartnerRent_m->add_vehicle($account->id, $this->_vehicle_payload());
 		if ($id) {
 			$this->_attach_photos($id);
@@ -102,9 +102,16 @@ class PartnerRent extends REST_Base_Controller
 	/** PUT api/partnerRent/vehicles/{id} */
 	public function vehicles_put($id = null)
 	{
-		$this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 		if (empty($id)) {
 			return $this->validation_error(['id' => 'wajib diisi']);
+		}
+		$vehicle = $this->PartnerRent_m->vehicle_detail($id);
+		if (!$vehicle) {
+			return $this->not_found('Kendaraan tidak ditemukan');
+		}
+		if ((int) $vehicle->account_id !== (int) $account->id) {
+			return $this->forbidden();
 		}
 		$this->PartnerRent_m->update_vehicle($id, $this->_vehicle_payload());
 		$this->_attach_photos($id);
@@ -117,11 +124,14 @@ class PartnerRent extends REST_Base_Controller
 	 */
 	public function vehicles_get($id = null)
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 
 		if (!empty($id)) {
 			$vehicle = $this->PartnerRent_m->vehicle_detail($id);
 			if (!$vehicle) return $this->not_found('Kendaraan tidak ditemukan');
+			if ((int) $vehicle->account_id !== (int) $account->id) {
+				return $this->forbidden();
+			}
 			$vehicle->photos = $this->PartnerRent_m->vehicle_photos($id);
 			return $this->ok(['vehicle' => $vehicle]);
 		}
@@ -152,9 +162,16 @@ class PartnerRent extends REST_Base_Controller
 	/** DELETE api/partnerRent/vehicles/{id} */
 	public function vehicles_delete($id = null)
 	{
-		$this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 		if (empty($id)) {
 			return $this->validation_error(['id' => 'wajib diisi']);
+		}
+		$vehicle = $this->PartnerRent_m->vehicle_detail($id);
+		if (!$vehicle) {
+			return $this->not_found('Kendaraan tidak ditemukan');
+		}
+		if ((int) $vehicle->account_id !== (int) $account->id) {
+			return $this->forbidden();
 		}
 		$this->PartnerRent_m->delete_vehicle($id);
 		$this->ok(null, 'Berhasil menghapus kendaraan');
@@ -163,7 +180,7 @@ class PartnerRent extends REST_Base_Controller
 	/** POST api/partnerRent/vehicle_photos (multipart: photo) */
 	public function vehicle_photos_post()
 	{
-		$this->require_auth();
+		$this->require_auth_group([self::GROUP_PARTNER]);
 
 		$config = ['upload_path' => FCPATH.'data/vehicles', 'allowed_types' => 'jpg|jpeg|png', 'max_size' => '10240', 'overwrite' => false];
 		$this->load->library('upload', $config);
@@ -191,11 +208,21 @@ class PartnerRent extends REST_Base_Controller
 	/** DELETE api/partnerRent/vehicle_photos/{id} */
 	public function vehicle_photos_delete($id = null)
 	{
-		$this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 		$this->load->helper('file');
 
 		if (empty($id)) {
 			return $this->validation_error(['id' => 'wajib diisi']);
+		}
+
+		$this->db->where('id', $id);
+		$photo_row = $this->db->get('rent_vehicles_item_images')->row();
+		if (!$photo_row) {
+			return $this->not_found('Foto tidak ditemukan');
+		}
+		$vehicle = $this->PartnerRent_m->vehicle_detail($photo_row->item_id);
+		if (!$vehicle || (int) $vehicle->account_id !== (int) $account->id) {
+			return $this->forbidden();
 		}
 
 		$img_filename = $this->PartnerRent_m->delete_vehicle_photo($id);
@@ -210,14 +237,14 @@ class PartnerRent extends REST_Base_Controller
 
 	public function config_get()
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 		$this->ok(['rent_config' => $this->PartnerRent_m->config($account->id)]);
 	}
 
 	/** PUT api/partnerRent/config body: {force_with_driver, force_disable_delivery, force_disable_pickoff, delivery_fee, pickoff_fee, max_day_cod, overtime_fee} */
 	public function config_put()
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 		$this->PartnerRent_m->update_config($account->id, [
 			'force_with_driver' => $this->put('force_with_driver'),
 			'force_disable_delivery' => $this->put('force_disable_delivery'),
@@ -240,7 +267,7 @@ class PartnerRent extends REST_Base_Controller
 	 */
 	public function bookings_get($id = null)
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 
 		if (!empty($id)) {
 			return $this->_booking_detail($account->id, $id);
@@ -266,6 +293,9 @@ class PartnerRent extends REST_Base_Controller
 		}
 
 		$vehicle = $this->RentVehicle_m->vehicle_detail($transaction_detail->item_id);
+		if (!$vehicle || (int) $vehicle->account_id !== (int) $account_id) {
+			return $this->forbidden();
+		}
 		$vehicle->photos = $this->RentVehicle_m->vehicle_photos($transaction_detail->item_id);
 		$voucher = $this->Basic_m->get_voucher($transaction_detail->voucher_id);
 		$balance = $this->Customer_m->balance($account_id);
@@ -294,7 +324,7 @@ class PartnerRent extends REST_Base_Controller
 	/** DELETE api/partnerRent/bookings/{id} -- partner-side cancel */
 	public function bookings_delete($id = null)
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 		$this->load->model('Customer_m');
 		$this->load->model('RentVehicle_m');
 
@@ -331,7 +361,7 @@ class PartnerRent extends REST_Base_Controller
 	/** PUT api/partnerRent/booking_status/{id} body: {status} */
 	public function booking_status_put($id = null)
 	{
-		$this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 		$this->load->model('Customer_m');
 		$this->load->model('RentVehicle_m');
 
@@ -340,12 +370,18 @@ class PartnerRent extends REST_Base_Controller
 			return $this->validation_error(['id' => 'wajib diisi', 'status' => 'wajib diisi']);
 		}
 
+		$transaction_detail = $this->PartnerRent_m->transaction_detail($id);
+		if (!$transaction_detail) {
+			return $this->not_found('Transaksi tidak ditemukan');
+		}
+		$vehicle = $this->RentVehicle_m->vehicle_detail($transaction_detail->item_id);
+		if (!$vehicle || (int) $vehicle->account_id !== (int) $account->id) {
+			return $this->forbidden();
+		}
+
 		$this->RentVehicle_m->update_transaction_status($id, $new_status);
 		$status = $this->RentVehicle_m->get_transaction_status_name($new_status);
 		$this->RentVehicle_m->add_timeline_transaction(['transaction_id' => $id, 'title' => $status->name, 'description' => $status->name]);
-
-		$transaction_detail = $this->PartnerRent_m->transaction_detail($id);
-		$vehicle = $this->RentVehicle_m->vehicle_detail($transaction_detail->item_id);
 
 		$this->_notify_booking($id, $vehicle->account_id, $transaction_detail->account_id,
 			'Transaksi #'.$id.' : '.$status->name, 'Transaksi #'.$id.' : '.$status->name);
@@ -375,7 +411,7 @@ class PartnerRent extends REST_Base_Controller
 	/** PUT api/partnerRent/booking_done/{id} -- mark booking complete, settle payment, rewards & commission */
 	public function booking_done_put($id = null)
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 		$this->load->model('RentVehicle_m');
 		$this->load->model('Customer_m');
 		$this->load->model('Basic_m');
@@ -390,6 +426,12 @@ class PartnerRent extends REST_Base_Controller
 		}
 
 		$vehicle = $this->RentVehicle_m->vehicle_detail($transaction_detail->item_id);
+		if (!$vehicle || (int) $vehicle->account_id !== (int) $account->id) {
+			return $this->forbidden();
+		}
+		if ((int) $transaction_detail->status === 8) {
+			return $this->fail('Transaksi ini sudah diselesaikan sebelumnya.', 409);
+		}
 
 		$now = new DateTime(date('Y-m-d H:i:s'));
 		$end_date = new DateTime($transaction_detail->end_date);
@@ -536,11 +578,21 @@ class PartnerRent extends REST_Base_Controller
 	/** POST api/partnerRent/booking_review/{id} body: {rating, comment} */
 	public function booking_review_post($id = null)
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 		$rating = $this->post('rating');
 
 		if (empty($id) || empty($rating)) {
 			return $this->validation_error(['id' => 'wajib diisi', 'rating' => 'wajib diisi']);
+		}
+
+		$this->load->model('RentVehicle_m');
+		$transaction_detail = $this->PartnerRent_m->transaction_detail($id);
+		if (!$transaction_detail) {
+			return $this->not_found('Transaksi tidak ditemukan');
+		}
+		$vehicle = $this->RentVehicle_m->vehicle_detail($transaction_detail->item_id);
+		if (!$vehicle || (int) $vehicle->account_id !== (int) $account->id) {
+			return $this->forbidden();
 		}
 
 		$this->PartnerRent_m->post_review([
@@ -559,14 +611,14 @@ class PartnerRent extends REST_Base_Controller
 
 	public function promotions_get()
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 		$param = ['page' => (int) ($this->get('page') ?: 1), 'limit' => min((int) ($this->get('limit') ?: 10), 50)];
 		$this->ok(['promotes' => $this->PartnerRent_m->list_promote_vehicle($account->id, $param) ?: []]);
 	}
 
 	public function promotion_input_config_get()
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 		$this->load->model('Basic_m');
 
 		$result = $this->PartnerRent_m->list_vehicle($account->id, ['sort' => 1]);
@@ -581,7 +633,7 @@ class PartnerRent extends REST_Base_Controller
 	/** POST api/partnerRent/promotions body: {item_id, start_date, end_date} */
 	public function promotions_post()
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 		$this->load->model('Basic_m');
 		$this->load->model('Customer_m');
 
@@ -623,7 +675,7 @@ class PartnerRent extends REST_Base_Controller
 	/** DELETE api/partnerRent/promotions/{id} */
 	public function promotions_delete($id = null)
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_PARTNER]);
 		$this->load->model('Customer_m');
 
 		if (empty($id)) {
@@ -633,6 +685,9 @@ class PartnerRent extends REST_Base_Controller
 		$promote = $this->PartnerRent_m->promote_detail($id);
 		if (!$promote) {
 			return $this->not_found('Promosi tidak ditemukan');
+		}
+		if ((int) $promote->account_id !== (int) $account->id) {
+			return $this->forbidden();
 		}
 
 		if ($promote->status == 2) {

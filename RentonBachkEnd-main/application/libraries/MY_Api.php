@@ -49,6 +49,12 @@ class MY_Api extends REST_Controller {
     {
         $data[config_item('rest_key_column')] = $key;
         $data['date_created'] = function_exists('now') ? now() : time();
+        // Keys never used to expire (audit finding) -- every key issued from
+        // here on is valid 30 days from creation; checked in
+        // REST_Base_Controller::require_auth().
+        if (!isset($data['date_expires'])) {
+            $data['date_expires'] = time() + (30 * 24 * 60 * 60);
+        }
 
         return $this->rest->db
             ->set($data)

@@ -47,7 +47,7 @@ class Partner extends REST_Base_Controller
 
 		$config = [
 			'upload_path' => $path,
-			'allowed_types' => '*',
+			'allowed_types' => 'jpg|jpeg|png',
 			'max_size' => '20480',
 			'overwrite' => false,
 		];

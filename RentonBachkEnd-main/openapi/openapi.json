@@ -14,7 +14,7 @@
             "description": "Production"
         },
         {
-            "url": "http://localhost/RentonBachkEnd-main",
+            "url": "http://localhost/renton",
             "description": "Local development"
         }
     ],

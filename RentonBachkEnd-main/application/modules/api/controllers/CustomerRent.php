@@ -27,7 +27,7 @@ class CustomerRent extends REST_Base_Controller
 	 */
 	public function bookings_get($id = null)
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_CUSTOMER]);
 
 		if (!empty($id)) {
 			return $this->_booking_detail($account->id, $id);
@@ -50,6 +50,9 @@ class CustomerRent extends REST_Base_Controller
 		$transaction_detail = $this->CustomerRent_m->transaction_detail($id);
 		if (!$transaction_detail) {
 			return $this->not_found('Transaksi tidak ditemukan');
+		}
+		if ((int) $transaction_detail->account_id !== (int) $account_id) {
+			return $this->forbidden();
 		}
 
 		$vehicle = $this->RentVehicle_m->vehicle_detail($transaction_detail->item_id);
@@ -81,7 +84,7 @@ class CustomerRent extends REST_Base_Controller
 	/** DELETE api/customerRent/bookings/{id} -- cancel a booking */
 	public function bookings_delete($id = null)
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_CUSTOMER]);
 
 		if (empty($id)) {
 			return $this->validation_error(['id' => 'wajib diisi']);
@@ -114,7 +117,7 @@ class CustomerRent extends REST_Base_Controller
 	/** PUT api/customerRent/booking_status/{id} body: {status} */
 	public function booking_status_put($id = null)
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_CUSTOMER]);
 		$new_status = $this->put('status');
 
 		if (empty($id) || empty($new_status)) {
@@ -160,11 +163,19 @@ class CustomerRent extends REST_Base_Controller
 	/** POST api/customerRent/booking_review/{id} body: {rating, comment} */
 	public function booking_review_post($id = null)
 	{
-		$account = $this->require_auth();
+		$account = $this->require_auth_group([self::GROUP_CUSTOMER]);
 		$rating = $this->post('rating');
 
 		if (empty($id) || empty($rating)) {
 			return $this->validation_error(['id' => 'wajib diisi', 'rating' => 'wajib diisi']);
+		}
+
+		$transaction_detail = $this->CustomerRent_m->transaction_detail($id);
+		if (!$transaction_detail) {
+			return $this->not_found('Transaksi tidak ditemukan');
+		}
+		if ((int) $transaction_detail->account_id !== (int) $account->id) {
+			return $this->forbidden();
 		}
 
 		$this->CustomerRent_m->post_review([

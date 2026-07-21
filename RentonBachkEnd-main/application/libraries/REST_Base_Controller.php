@@ -126,6 +126,14 @@ class REST_Base_Controller extends MY_Api
 			exit;
 		}
 
+		// date_expires is nullable for backward compatibility with keys issued
+		// before this check existed -- those stay valid; every key issued from
+		// now on always gets a real expiry (see MY_Api::_insert_key()).
+		if (!empty($key_row->date_expires) && (int) $key_row->date_expires < time()) {
+			$this->unauthorized('Kunci API sudah kedaluwarsa, silakan login kembali');
+			exit;
+		}
+
 		$this->db->where('id', $key_row->account_id);
 		$account = $this->db->get('accounts')->row();
 

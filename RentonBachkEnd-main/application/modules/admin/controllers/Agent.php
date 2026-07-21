@@ -94,7 +94,7 @@ class Agent extends REST_Base_Controller
 		}
 
 		$config['upload_path'] = $path;
-		$config['allowed_types'] = '*';
+		$config['allowed_types'] = 'jpg|jpeg|png';
 		$config['max_size'] = '20480';
 		$config['overwrite'] = false;
 		$this->load->library('upload', $config, $field.'upload');

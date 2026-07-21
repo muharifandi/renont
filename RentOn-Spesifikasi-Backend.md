@@ -92,19 +92,22 @@ Audit keamanan lengkap sebelumnya ada di [RentOn-Audit-Keamanan-Backend.md](Rent
 - `require_auth()` tidak lagi fatal-error pada key tidak valid.
 - Unrestricted file upload **di `api/Customer.php` dan `api/Partner.php`** (dua titik upload customer/partner dari mobile) — sudah dibatasi ke `jpg|jpeg|png`.
 
+### ✅ Diperbaiki 22 Juli 2026 (lihat [RentOn-Audit-Keamanan-REST-API.md](RentOn-Audit-Keamanan-REST-API.md))
+- **Unrestricted file upload** — 5 titik tersisa (`admin/PartnerReward.php`, `admin/News.php`, `admin/Agent.php`, `agent/Partner.php`, `agent/Config.php`) semua dibatasi ke `jpg|jpeg|png` — kini 7 dari 7 titik upload sudah dibatasi.
+- Folder `data/` tanpa proteksi eksekusi PHP — `.htaccess` baru dibuat, menonaktifkan eksekusi PHP di seluruh folder ini. Kombinasi RCE (upload wildcard + folder tereksekusi) **sudah tertutup**.
+- Ditambah, di luar 16 temuan awal: 9 celah IDOR/BOLA finansial (termasuk pencurian saldo lewat pembatalan promosi), nol rate-limiting di seluruh API, dan API key yang tak pernah kedaluwarsa — ketiganya ditemukan & diperbaiki dalam audit terpisah khusus arsitektur REST.
+
 ### 🔴 Masih Belum Diperbaiki (Perlu Tindakan Terpisah)
 | Temuan | Status | Lokasi |
 |---|---|---|
-| **Unrestricted file upload** (`allowed_types = '*'`) | ⚠️ **Masih ada di 5 file** | `admin/PartnerReward.php`, `admin/News.php`, `admin/Agent.php`, `agent/Partner.php`, `agent/Config.php` |
 | Folder `database/` bisa diunduh publik (tanpa `.htaccess`) | ⚠️ Belum diperbaiki | `RentonBachkEnd-main/database/` |
 | Kredensial database production hardcoded di repo | ⚠️ Belum diperbaiki | `application/config/production/database.php` |
 | `mailtest.php` — file debug tertinggal di web root | ⚠️ **Masih ada** | `RentonBachkEnd-main/mailtest.php` |
 | `encryption_key` kosong | ⚠️ Belum diperbaiki | `application/config/production/config.php` |
 | `csrf_protection` dinonaktifkan | ℹ️ Relevansi berkurang — API sekarang stateless (auth via header `key`, bukan cookie session), tapi tetap sebaiknya tidak dibiarkan `FALSE` tanpa alasan eksplisit | sama |
 | Cookie `secure`/`httponly` mati | ℹ️ Relevansi berkurang untuk API, tapi bila ada endpoint yang masih pakai session (tidak ada saat ini) tetap berisiko | sama |
-| Folder `data/` tanpa proteksi eksekusi PHP | ⚠️ Belum diperbaiki — **kombinasi dengan upload wildcard di atas = RCE tetap terbuka** di 5 endpoint yang disebutkan | `RentonBachkEnd-main/data/` |
 
-**Kesimpulan §5:** Konversi ke REST API **tidak menutup celah RCE utama** (unrestricted upload + folder data tanpa proteksi eksekusi) di seluruh titik — hanya 2 dari 7 titik upload yang tersentuh perbaikan (karena itu yang saya konversi manual; 5 sisanya dikerjakan agent dengan scope terbatas ke arsitektur/routing, bukan hardening keamanan). **Rekomendasi: prioritaskan perbaikan §5 sebelum deploy ke production**, terlepas dari kesiapan REST API-nya.
+**Kesimpulan §5 (diperbarui):** Celah RCE utama (unrestricted upload + folder data tanpa proteksi eksekusi) **sudah tertutup sepenuhnya** per 22 Juli 2026 — 7 dari 7 titik upload dibatasi, dan `data/.htaccess` memblokir eksekusi PHP sebagai lapisan kedua. Yang tersisa sekarang murni item konfigurasi/hardening (kredensial, `mailtest.php`, `encryption_key`) — tidak ada lagi kombinasi yang langsung mengarah ke RCE.
 
 ---
 

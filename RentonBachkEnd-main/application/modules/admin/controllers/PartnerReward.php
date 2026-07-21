@@ -82,7 +82,7 @@ class PartnerReward extends REST_Base_Controller
 		$upload_log = null;
 		if (!empty($_FILES['img']['name'])) {
 			$config['upload_path'] = FCPATH.'data/rewards';
-			$config['allowed_types'] = '*';
+			$config['allowed_types'] = 'jpg|jpeg|png';
 			$config['max_size'] = '20480';
 			$config['overwrite'] = false;
 			$this->load->library('upload', $config);

@@ -8,6 +8,15 @@ require APPPATH.'libraries/REST_Base_Controller.php';
  */
 class Customer extends REST_Base_Controller
 {
+	/**
+	 * Per-IP rate limit on login, on top of Ion Auth's own per-identity lockout
+	 * (track_login_attempts) -- rest_limits_method is 'IP_ADDRESS' for this
+	 * module, see application/modules/api/config/rest.php.
+	 */
+	protected $methods = [
+		'login_post' => ['limit' => 10, 'time' => 300],
+	];
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -120,8 +129,15 @@ class Customer extends REST_Base_Controller
 
 		$this->db->where('account_id', $user->id);
 		$this->db->where('level >', 0);
+		$this->db->group_start()->where('date_expires IS NULL')->or_where('date_expires >', time())->group_end();
 		$existing = $this->db->get(config_item('rest_keys_table'))->row();
-		$key = $existing ? $existing->{config_item('rest_key_column')} : $this->Customer_m->get_key($user->id);
+		if ($existing) {
+			$key = $existing->{config_item('rest_key_column')};
+			$this->db->where('id', $existing->id);
+			$this->db->update(config_item('rest_keys_table'), ['date_expires' => time() + (30 * 24 * 60 * 60)]);
+		} else {
+			$key = $this->Customer_m->get_key($user->id);
+		}
 
 		$this->ok(['account_id' => (int) $user->id, 'key' => $key], 'Login berhasil');
 	}
@@ -172,15 +188,19 @@ class Customer extends REST_Base_Controller
 		if (empty($id)) {
 			return $this->validation_error(['id' => 'wajib diisi']);
 		}
-		$this->Customer_m->delete_bank($id);
+		$bank = $this->Customer_m->bank_detail($id, $account->id);
+		if (!$bank) {
+			return $this->not_found('Rekening tidak ditemukan');
+		}
+		$this->Customer_m->delete_bank($id, $account->id);
 		$this->ok(null, 'Berhasil menghapus rekening bank');
 	}
 
 	public function bank_get($id = null)
 	{
-		$this->require_auth();
+		$account = $this->require_auth();
 		if (!empty($id)) {
-			$bank = $this->Customer_m->bank_detail($id);
+			$bank = $this->Customer_m->bank_detail($id, $account->id);
 			if (!$bank) return $this->not_found('Rekening tidak ditemukan');
 			return $this->ok(['bank' => $bank]);
 		}
@@ -343,7 +363,7 @@ class Customer extends REST_Base_Controller
 		$account = $this->require_auth();
 
 		if (!empty($id)) {
-			$detail = $this->Customer_m->topup_detail($id);
+			$detail = $this->Customer_m->topup_detail($id, $account->id);
 			if (!$detail) return $this->not_found('Data topup tidak ditemukan');
 			return $this->ok(['detail' => $detail]);
 		}
@@ -362,12 +382,17 @@ class Customer extends REST_Base_Controller
 			return $this->validation_error(['id' => 'wajib diisi']);
 		}
 
+		$topup = $this->Customer_m->topup_detail($id, $account->id);
+		if (!$topup) {
+			return $this->not_found('Data topup tidak ditemukan');
+		}
+
 		$img_proof = $this->_handle_upload('img_proof', FCPATH.'data/customers/topup');
 		if (!$img_proof) {
 			return $this->fail('Gagal mengunggah bukti pembayaran', 422);
 		}
 
-		$this->Customer_m->update_topup($id, ['status' => 2, 'img_proof' => $img_proof]);
+		$this->Customer_m->update_topup($id, ['status' => 2, 'img_proof' => $img_proof], $account->id);
 		$this->_notify_admins_topup($id);
 
 		$this->ok(null, 'Berhasil mengirim bukti verifikasi topup');

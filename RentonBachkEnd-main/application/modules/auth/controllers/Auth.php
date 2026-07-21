@@ -17,6 +17,16 @@ class Auth extends REST_Base_Controller
 	/** Login here is for every non-mobile role: admin panel staff + agent. */
 	const STAFF_GROUP_IDS = [self::GROUP_ADMIN, self::GROUP_SUPERVISOR, self::GROUP_STAFF, self::GROUP_READER, self::GROUP_AGENT];
 
+	/**
+	 * Rate limit on top of Ion Auth's own per-identity lockout (track_login_attempts):
+	 * this one is per-IP, so a single attacker can't brute-force many different
+	 * identities from one address either. rest_limits_method is 'IP_ADDRESS' for
+	 * this module -- see application/modules/auth/config/rest.php.
+	 */
+	protected $methods = [
+		'login_post' => ['limit' => 10, 'time' => 300],
+	];
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -66,13 +76,18 @@ class Auth extends REST_Base_Controller
 			return $this->fail('Akun ini tidak memiliki akses ke panel admin/agent', 403);
 		}
 
-		// Reuse any existing active key instead of piling up a new row every login.
+		// Reuse any existing active, non-expired key instead of piling up a new
+		// row every login -- and push its expiry out another 30 days so an
+		// account that logs in regularly never gets silently locked out.
 		$this->db->where('account_id', $account->id);
 		$this->db->where('level >', 0);
+		$this->db->group_start()->where('date_expires IS NULL')->or_where('date_expires >', time())->group_end();
 		$existing_key = $this->db->get(config_item('rest_keys_table'))->row();
 
 		if ($existing_key) {
 			$key = $existing_key->{config_item('rest_key_column')};
+			$this->db->where('id', $existing_key->id);
+			$this->db->update(config_item('rest_keys_table'), ['date_expires' => time() + (30 * 24 * 60 * 60)]);
 		} else {
 			$key = $this->_generate_key();
 			$this->_insert_key($key, [

@@ -78,9 +78,12 @@ class Customer_m extends MY_Model {
 		return $this->db->get('accounts_bank')->result();
 	}
 	
-	function bank_detail($id)
+	function bank_detail($id,$account_id = null)
 	{
 		$this->db->where('accounts_bank.id',$id);
+		if ($account_id !== null) {
+			$this->db->where('accounts_bank.account_id',$account_id);
+		}
 		$this->db->join('bank','bank.id = accounts_bank.bank_id','left');
 		$this->db->select('accounts_bank.*,bank.name as bank_name,bank.code,bank.icon');
 		return $this->db->get('accounts_bank')->row();
@@ -103,9 +106,12 @@ class Customer_m extends MY_Model {
 		return $item_id;
 	}
 	
-	function delete_bank($id)
-	{	
+	function delete_bank($id,$account_id = null)
+	{
 		$this->db->where('id',$id);
+		if ($account_id !== null) {
+			$this->db->where('account_id',$account_id);
+		}
 		$this->db->delete('accounts_bank');
 	}
 	
@@ -188,15 +194,21 @@ class Customer_m extends MY_Model {
 		return $this->db->insert_id();
 	}
 
-	function update_topup($id,$data)
+	function update_topup($id,$data,$account_id = null)
 	{
 		$this->db->where('id',$id);
+		if ($account_id !== null) {
+			$this->db->where('account_id',$account_id);
+		}
 		$this->db->update('customer_topup',$data);
 	}
-	
-	function topup_detail($id)
+
+	function topup_detail($id,$account_id = null)
 	{
 		$this->db->where('customer_topup.id',$id);
+		if ($account_id !== null) {
+			$this->db->where('customer_topup.account_id',$account_id);
+		}
 		$this->db->join('company_bank','company_bank.id = customer_topup.company_bank_id','left');
 		$this->db->join('bank','bank.id = company_bank.bank_id','left');
 		$this->db->join('customer_topup_status','customer_topup_status.id = customer_topup.status','left');

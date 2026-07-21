@@ -80,7 +80,7 @@ class News extends REST_Base_Controller
 		}
 
 		$config['upload_path'] = FCPATH.'data/news';
-		$config['allowed_types'] = '*';
+		$config['allowed_types'] = 'jpg|jpeg|png';
 		$config['max_size'] = '20480';
 		$config['overwrite'] = false;
 		$this->load->library('upload', $config);

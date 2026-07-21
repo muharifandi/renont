@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/baseBackgroundColor"
+    android:orientation="vertical"
+    android:padding="10dp"
+    tools:context=".presentation.feature.account.requesttopup.CustomerRequestTopupActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/inputNominalLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            app:errorEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/inputNominal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:digits="0123456789,."
+                android:editable="true"
+                android:hint="@string/input_nominal"
+                android:inputType="numberDecimal"
+                android:singleLine="true" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.rentone.user.core.ui.CheckView
+            android:id="@+id/checkNominal"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            app:checkView_strokeColor="@color/green"
+            app:checkView_strokeWidth="@dimen/check_stroke_width" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/txtRateExchange"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="1 Point = Rp. 1.000,-"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textStyle="bold|italic" />
+
+    <Button
+        android:id="@+id/btnExchange"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+
+        android:layout_marginBottom="50dp"
+        android:enabled="true"
+        android:text="@string/exchange"
+        app:icon="@drawable/ic_send"
+        app:iconGravity="textStart"
+        app:iconPadding="20dp" />
+
+</LinearLayout>

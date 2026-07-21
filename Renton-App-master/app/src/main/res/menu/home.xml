@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_notification"
+        app:actionLayout="@layout/action_item_with_badge"
+        android:icon="@drawable/ic_notifications"
+        android:title="Item"
+        app:showAsAction="always" />
+</menu>

@@ -1,0 +1,13 @@
+# macOS
+**/.DS_Store
+
+# Kredensial asli — jangan pernah masuk repo publik
+**/application/config/*/database.php
+**/application/config/*/mail.php
+**/application/config/*/fcm.php
+
+# File test yang mengekspos kemampuan kirim email (temuan audit keamanan)
+**/mailtest.php
+
+# Dump database berisi data pelanggan asli
+**/db_rentone_06_Dec_2021.sql

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/ic_home"
+        android:title="@string/menu_home" />
+    <item
+        android:id="@+id/nav_news"
+        android:icon="@drawable/ic_format_list_bulleted"
+        android:title="@string/menu_news" />
+    <group
+
+        android:id="@+id/menu_main"
+        android:checkableBehavior="single">
+
+
+        <item
+            android:id="@+id/menu_customer"
+            android:title="@string/customer">
+            <menu>
+                <item
+                    android:id="@+id/nav_account"
+                    android:icon="@drawable/ic_person_black"
+                    android:title="@string/menu_account" />
+                <item
+                    android:id="@+id/nav_transaction"
+                    android:icon="@drawable/ic_chrome_reader_mode"
+                    android:title="@string/menu_transaction" />
+                <item
+                    android:id="@+id/nav_customer_chat"
+                    android:icon="@drawable/ic_chat"
+                    app:actionViewClass="android.widget.TextView"
+                    android:title="@string/chat" />
+            </menu>
+        </item>
+        <item
+            android:id="@+id/menu_partner"
+            android:title="@string/partner">
+            <menu>
+                <item
+                    android:id="@+id/nav_partner_register"
+                    android:icon="@drawable/ic_person_black"
+                    android:title="@string/menu_become_partner" />
+                <group
+                    android:id="@+id/menu_main_partner"
+                    android:checkableBehavior="single">
+                    <item
+                        android:id="@+id/nav_partner_profile"
+                        android:icon="@drawable/ic_person_black"
+                        android:title="@string/menu_partner_profile"
+                        app:showAsAction="never" />
+                    <item
+                        android:id="@+id/nav_partner_chat"
+                        android:icon="@drawable/ic_chat"
+                        app:actionViewClass="android.widget.TextView"
+                        android:title="@string/chat" />
+                    <item
+                        android:id="@+id/nav_partner_reward"
+                        android:icon="@drawable/ic_card_giftcard"
+                        app:actionViewClass="android.widget.TextView"
+                        android:title="@string/partner_reward" />
+                    <item
+                        android:id="@+id/nav_partner_transaction"
+                        android:icon="@drawable/ic_chrome_reader_mode"
+                        android:title="@string/menu_transaction" />
+                    <item
+                        android:id="@+id/nav_partner_rent_vehicle"
+                        android:icon="@drawable/ic_car"
+                        android:title="@string/menu_rent_vehicle"
+                        app:showAsAction="never" />
+                    <item
+                        android:id="@+id/nav_partner_promote_rent_vehicle"
+                        android:icon="@drawable/ic_widgets"
+                        android:title="@string/menu_promote_rent_vehicle"
+                        app:showAsAction="never" />
+                    <item
+                        android:id="@+id/nav_partner_wash_vehicle"
+                        android:icon="@drawable/ic_local_car_wash"
+                        android:title="@string/menu_wash_vehicle"
+                        app:showAsAction="never" />
+                </group>
+            </menu>
+        </item>
+    </group>
+    <group
+        android:id="@+id/menu_info"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_about_us"
+            android:icon="@drawable/ic_info_outline"
+            android:title="@string/nav_about_us" />
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_exit"
+            android:title="@string/menu_logour" />
+    </group>
+</menu>

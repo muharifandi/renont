@@ -1,0 +1,64 @@
+package com.rentone.user.presentation.feature.account
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.rentone.user.domain.model.OperationResult
+import com.rentone.user.domain.model.CustomerAccountDetail
+import com.rentone.user.core.common.Resource
+import com.rentone.user.core.common.UiState
+import com.rentone.user.domain.repository.SessionRepository
+import com.rentone.user.domain.usecase.GetCustomerDetailUseCase
+import com.rentone.user.domain.usecase.UploadCustomerProfileImageUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import okhttp3.MultipartBody
+import javax.inject.Inject
+
+@HiltViewModel
+class AccountViewModel @Inject constructor(
+    private val getCustomerDetailUseCase: GetCustomerDetailUseCase,
+    private val uploadCustomerProfileImageUseCase: UploadCustomerProfileImageUseCase,
+    private val sessionRepository: SessionRepository
+) : ViewModel() {
+
+    fun logout() {
+        viewModelScope.launch { sessionRepository.clearSession() }
+    }
+
+    private val _customerDetail = MutableStateFlow<UiState<CustomerAccountDetail>>(UiState.Idle)
+    val customerDetail = _customerDetail.asStateFlow()
+
+    private val _uploadStatus = MutableStateFlow<UiState<OperationResult>>(UiState.Idle)
+    val uploadStatus = _uploadStatus.asStateFlow()
+
+    fun getCustomerDetail() {
+        viewModelScope.launch {
+            getCustomerDetailUseCase().collect { resource ->
+                _customerDetail.value = when (resource) {
+                    is Resource.Loading -> UiState.Loading
+                    is Resource.Success -> UiState.Success(resource.data)
+                    is Resource.Error -> UiState.Error(resource.message)
+                    is Resource.Empty -> UiState.Empty
+                }
+            }
+        }
+    }
+
+    fun uploadProfileImage(image: MultipartBody.Part) {
+        viewModelScope.launch {
+            uploadCustomerProfileImageUseCase(image).collect { resource ->
+                _uploadStatus.value = when (resource) {
+                    is Resource.Loading -> UiState.Loading
+                    is Resource.Success -> {
+                        getCustomerDetail() // Refresh
+                        UiState.Success(resource.data)
+                    }
+                    is Resource.Error -> UiState.Error(resource.message)
+                    is Resource.Empty -> UiState.Empty
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".presentation.feature.customer.transaction.rentvehicle.CustomerRentVehicleTransactionFragment">
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/cgFilterStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                app:checkedChip="@id/chipAll"
+                app:singleLine="true"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipAll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:checkable="true"
+                    android:fontFamily="casual"
+                    android:text="@string/all"
+                    android:textColor="@color/chip_text"
+                    app:checkedIconEnabled="false"
+                    app:checkedIconVisible="false"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipEndPadding="20dp"
+                    app:chipIconVisible="false"
+                    app:chipStartPadding="20dp"
+                    app:chipStrokeColor="@color/colorAccent"
+                    app:chipStrokeWidth="2dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipOvertime"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="5dp"
+                    android:checkable="true"
+                    android:fontFamily="casual"
+                    android:text="@string/overtime"
+                    android:textColor="@color/chip_text"
+                    app:checkedIconEnabled="false"
+                    app:checkedIconVisible="false"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipIconVisible="false"
+                    app:chipStrokeColor="@color/colorAccent"
+                    app:chipStrokeWidth="2dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCanceled"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="20dp"
+                    android:checkable="true"
+                    android:fontFamily="casual"
+                    android:text="@string/canceled"
+                    android:textColor="@color/chip_text"
+                    app:checkedIconEnabled="false"
+                    app:checkedIconVisible="false"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipIconVisible="false"
+                    app:chipStrokeColor="@color/colorAccent"
+                    app:chipStrokeWidth="2dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipWaitingVerification"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:checkable="true"
+                    android:checked="false"
+                    android:fontFamily="casual"
+                    android:text="@string/waiting_verification"
+                    android:textColor="@color/chip_text"
+                    app:checkedIconEnabled="false"
+                    app:checkedIconVisible="false"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipIconVisible="false"
+                    app:chipStrokeColor="@color/colorAccent"
+                    app:chipStrokeWidth="2dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipWaitingSchedule"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:checkable="true"
+                    android:fontFamily="casual"
+                    android:text="@string/waiting_schedule"
+                    android:textColor="@color/chip_text"
+                    app:checkedIconEnabled="false"
+                    app:checkedIconVisible="false"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipIconVisible="false"
+                    app:chipStrokeColor="@color/colorAccent"
+                    app:chipStrokeWidth="2dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipOnDelivery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:checkable="true"
+                    android:fontFamily="casual"
+                    android:text="@string/on_delivery"
+                    android:textColor="@color/chip_text"
+                    app:checkedIconEnabled="false"
+                    app:checkedIconVisible="false"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipIconVisible="false"
+                    app:chipStrokeColor="@color/colorAccent"
+                    app:chipStrokeWidth="2dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipWaitingPickup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:checkable="true"
+                    android:fontFamily="casual"
+                    android:text="@string/waiting_pickup"
+                    android:textColor="@color/chip_text"
+                    app:checkedIconEnabled="false"
+                    app:checkedIconVisible="false"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipIconVisible="false"
+                    app:chipStrokeColor="@color/colorAccent"
+                    app:chipStrokeWidth="2dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipInUse"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:checkable="true"
+                    android:fontFamily="casual"
+                    android:text="@string/in_use"
+                    android:textColor="@color/chip_text"
+                    app:checkedIconEnabled="false"
+                    app:checkedIconVisible="false"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipIconVisible="false"
+                    app:chipStrokeColor="@color/colorAccent"
+                    app:chipStrokeWidth="2dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipFinishingRenting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:checkable="true"
+                    android:fontFamily="casual"
+                    android:text="@string/finishing_renting"
+                    android:textColor="@color/chip_text"
+                    app:checkedIconEnabled="false"
+                    app:checkedIconVisible="false"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipIconVisible="false"
+                    app:chipStrokeColor="@color/colorAccent"
+                    app:chipStrokeWidth="2dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipIsPickingUp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:checkable="true"
+                    android:fontFamily="casual"
+                    android:text="@string/picking_up"
+                    android:textColor="@color/chip_text"
+                    app:checkedIconEnabled="false"
+                    app:checkedIconVisible="false"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipIconVisible="false"
+                    app:chipStrokeColor="@color/colorAccent"
+                    app:chipStrokeWidth="2dp" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipOrderCompleted"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:checkable="true"
+                    android:fontFamily="casual"
+                    android:text="@string/order_completed"
+                    android:textColor="@color/chip_text"
+                    app:checkedIconEnabled="false"
+                    app:checkedIconVisible="false"
+                    app:chipBackgroundColor="@color/chip_bg"
+                    app:chipIconVisible="false"
+                    app:chipStrokeColor="@color/colorAccent"
+                    app:chipStrokeWidth="2dp" />
+
+            </com.google.android.material.chip.ChipGroup>
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/srLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.facebook.shimmer.ShimmerFrameLayout
+                    android:id="@+id/shimmer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <include layout="@layout/shimmer_list_transaction" />
+
+                        <include layout="@layout/shimmer_list_transaction" />
+
+                        <include layout="@layout/shimmer_list_transaction" />
+
+                        <include layout="@layout/shimmer_list_transaction" />
+
+                        <include layout="@layout/shimmer_list_transaction" />
+
+                        <include layout="@layout/shimmer_list_transaction" />
+
+                        <include layout="@layout/shimmer_list_transaction" />
+                    </LinearLayout>
+                </com.facebook.shimmer.ShimmerFrameLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="visible"
+                    app:reverseLayout="false"
+                    app:stackFromEnd="false">
+
+                </androidx.recyclerview.widget.RecyclerView>
+
+                <TextView
+                    android:id="@+id/txtListMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="@string/no_data_available"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,7 +1,9 @@
 package com.rentone.user.domain.model
 
+import kotlinx.serialization.Serializable
 
 
+@Serializable
 data class Voucher(
     val id: Int,
     val userType: Int = 0,

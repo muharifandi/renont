@@ -4,7 +4,7 @@ import android.content.Context
 import com.rentone.user.api.service.CustomerService
 import com.rentone.user.core.common.Resource
 import com.rentone.user.core.util.FileUtils
-import com.rentone.user.data.mapper.toDomain
+import com.rentone.user.data.mapper.*
 import com.rentone.user.domain.model.CustomerAccountDetail
 import com.rentone.user.domain.model.HomeData
 import com.rentone.user.domain.model.OperationResult
@@ -24,21 +24,21 @@ class CustomerAccountRepositoryImpl @Inject constructor(
     override fun getDetail(): Flow<Resource<CustomerAccountDetail>> {
         return safeApiCall(
             apiCall = { customerService.detail() },
-            map = { it.toDomain() }
+            map = { it.toCustomerAccountDetail() }
         )
     }
 
     override fun changeName(firstName: String, lastName: String): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { customerService.changeName(mapOf("first_name" to firstName, "last_name" to lastName)) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
     override fun changePassword(oldPassword: String, newPassword: String): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { customerService.changePassword(mapOf("old_password" to oldPassword, "new_password" to newPassword)) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
@@ -48,14 +48,14 @@ class CustomerAccountRepositoryImpl @Inject constructor(
                 val imagePart = FileUtils.prepareFileImagePart(context, "img_profile", command.imagePath)
                 customerService.uploadProfileImage(imagePart)
             },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
     override fun getHomeData(): Flow<Resource<HomeData>> {
         return safeApiCall(
             apiCall = { customerService.home() },
-            map = { it.toDomain() }
+            map = { it.toHomeData() }
         )
     }
 }

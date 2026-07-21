@@ -3,6 +3,7 @@ package com.rentone.user.data.repository
 import com.rentone.user.api.service.CustomerService
 import com.rentone.user.core.common.Resource
 import com.rentone.user.core.util.FileUtils
+import com.rentone.user.data.mapper.*
 import com.rentone.user.domain.model.LoginResult
 import com.rentone.user.domain.model.OperationResult
 import com.rentone.user.domain.model.command.RegisterCustomerCommand
@@ -52,7 +53,7 @@ class AuthRepositoryImpl @Inject constructor(
                 }
                 customerService.register(form, files)
             },
-            map = { response -> OperationResult(response.status, response.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 }

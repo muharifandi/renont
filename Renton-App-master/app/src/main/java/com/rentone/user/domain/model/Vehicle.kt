@@ -1,9 +1,11 @@
 package com.rentone.user.domain.model
 
+import kotlinx.serialization.Serializable
 
 
+@Serializable
 data class Vehicle(
-    val id: Int,
+    val id: Int = 0,
     val promote: Int = 0,
     val rating: Double = 0.0,
     val distance: Double = 0.0,
@@ -51,6 +53,7 @@ data class Vehicle(
 )
 
 
+@Serializable
 data class VehicleItemImage(
     val id: Int = 0,
     val itemId: Int = 0,

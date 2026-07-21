@@ -1,7 +1,9 @@
 package com.rentone.user.domain.model
 
+import kotlinx.serialization.Serializable
 
 
+@Serializable
 data class Withdraw(
     val id: Int,
     val bankId: Int = 0,

@@ -1,11 +1,11 @@
 package com.rentone.user.domain.model
 
 import kotlinx.serialization.Serializable
+
 @Serializable
-data class VehicleSearchResult(
+data class PartnerVehicleSearchResult(
     val vehicles: List<Vehicle> = emptyList(),
+    val functionalType: List<BasicData> = emptyList(),
     val priceMin: Double = 0.0,
-    val priceMax: Double = 0.0,
-    val regencies: String? = null,
-    val functionalType: List<BasicData> = emptyList()
+    val priceMax: Double = 0.0
 )

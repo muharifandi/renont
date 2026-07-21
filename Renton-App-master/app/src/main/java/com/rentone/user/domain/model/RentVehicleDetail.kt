@@ -1,5 +1,7 @@
 package com.rentone.user.domain.model
 
+import kotlinx.serialization.Serializable
+@Serializable
 data class RentVehicleDetail(
     val customerDetail: CustomerDetail?,
     val partnerDetail: PartnerDetail?,

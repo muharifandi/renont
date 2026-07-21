@@ -1,7 +1,9 @@
 package com.rentone.user.domain.model
 
+import kotlinx.serialization.Serializable
 
 
+@Serializable
 data class Chat(
     val id: Int,
     val chatroomId: Int,
@@ -14,6 +16,7 @@ data class Chat(
 )
 
 
+@Serializable
 data class Chatroom(
     val id: Int,
     val name: String? = null,

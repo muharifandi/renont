@@ -1,11 +1,12 @@
 package com.rentone.user.presentation.feature.rentvehicle.checkout
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rentone.user.domain.model.OperationResult
-import com.rentone.user.domain.model.CheckoutDetail
 import com.rentone.user.core.common.Resource
 import com.rentone.user.core.common.UiState
+import com.rentone.user.domain.model.CheckoutDetail
+import com.rentone.user.domain.model.OperationResult
 import com.rentone.user.domain.model.Voucher
+import com.rentone.user.domain.model.command.CheckoutCommand
 import com.rentone.user.domain.usecase.CheckVoucherUseCase
 import com.rentone.user.domain.usecase.GetCheckoutDetailUseCase
 import com.rentone.user.domain.usecase.PostCheckoutUseCase
@@ -66,8 +67,8 @@ class RentVehicleOrderCheckoutViewModel @Inject constructor(
                 _voucherState.value = when (resource) {
                     is Resource.Loading -> VoucherState.Checking
                     is Resource.Success -> {
-                        val voucher = resource.data.voucher
-                        if (voucher != null) VoucherState.Found(voucher) else VoucherState.NotFound(resource.data.message)
+                        val voucher = resource.data
+                        if (voucher.status == 1) VoucherState.Found(voucher) else VoucherState.NotFound(null)
                     }
                     is Resource.Error -> VoucherState.Error(resource.message)
                     is Resource.Empty -> VoucherState.Idle
@@ -76,9 +77,9 @@ class RentVehicleOrderCheckoutViewModel @Inject constructor(
         }
     }
 
-    fun postCheckout(form: Map<String, String>) {
+    fun postCheckout(command: CheckoutCommand) {
         viewModelScope.launch {
-            postCheckoutUseCase(form).collect { resource ->
+            postCheckoutUseCase(command).collect { resource ->
                 _checkoutState.value = when (resource) {
                     is Resource.Loading -> UiState.Loading
                     is Resource.Success -> UiState.Success(resource.data)

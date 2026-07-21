@@ -6,5 +6,5 @@ import javax.inject.Inject
 class ListPartnerRewardScopesUseCase @Inject constructor(
     private val partnerRewardRepository: PartnerRewardRepository
 ) {
-    operator fun invoke() = partnerRewardRepository.listScopes()
+    operator fun invoke() = partnerRewardRepository.listRewardScopes()
 }

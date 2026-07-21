@@ -27,7 +27,7 @@ class RegisterPartnerStepTwoViewModel @Inject constructor(
             checkAgentUseCase(agentId).collect { resource ->
                 _agentState.value = when (resource) {
                     is Resource.Loading -> FieldCheckState.Checking
-                    is Resource.Success -> if (resource.data.valid) {
+                    is Resource.Success -> if (resource.data.isValid) {
                         FieldCheckState.Valid(resource.data.message)
                     } else {
                         FieldCheckState.Invalid(resource.data.message)

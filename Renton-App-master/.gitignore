@@ -1,14 +1,48 @@
+# Gradle files
+.gradle/
+build/
+/*/build/
+
+# IntelliJ IDEA / Android Studio
+.idea/
 *.iml
-.gradle
-/local.properties
-/.idea/caches
-/.idea/libraries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+*.iws
+*.ipr
+/out/
+
+# Local configuration files
+local.properties
+.bundle/
+
+# Log files and captures
+captures/
+*.log
+
+# System files
 .DS_Store
-/build
-/captures
+Thumbs.db
+
+# Keystore files (Sangat Penting: Jangan pernah push file JKS/Keystore!)
+*.jks
+*.keystore
+*.p12
+
+# Google Services (Opsional, tapi disarankan jika mengandung API key sensitif)
+# google-services.json
+
+# Navigation editor temp files
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
+
+# External Native Build
 .externalNativeBuild
-.cxx
+.cxx/
+
+# DataStore / Room temporary files
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Build variants specific files
+/app/release/
+/app/debug/

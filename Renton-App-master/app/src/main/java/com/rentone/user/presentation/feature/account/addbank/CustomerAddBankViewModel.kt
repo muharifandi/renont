@@ -1,11 +1,12 @@
 package com.rentone.user.presentation.feature.account.addbank
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rentone.user.domain.model.OperationResult
-import com.rentone.user.domain.model.CustomerBank
-import com.rentone.user.domain.model.Bank
 import com.rentone.user.core.common.Resource
 import com.rentone.user.core.common.UiState
+import com.rentone.user.domain.model.Bank
+import com.rentone.user.domain.model.CustomerBank
+import com.rentone.user.domain.model.OperationResult
+import com.rentone.user.domain.model.command.AddBankCommand
 import com.rentone.user.domain.usecase.GetBankInputConfigUseCase
 import com.rentone.user.domain.usecase.GetCustomerBankDetailUseCase
 import com.rentone.user.domain.usecase.PostCustomerBankUseCase
@@ -59,7 +60,8 @@ class CustomerAddBankViewModel @Inject constructor(
 
     fun saveBank(id: Int?, bankId: Int, name: String, bankNumber: String) {
         viewModelScope.launch {
-            postCustomerBankUseCase(id, bankId, name, bankNumber).collect { resource ->
+            val command = AddBankCommand(id, bankId, name, bankNumber)
+            postCustomerBankUseCase(command).collect { resource ->
                 _saveState.value = when (resource) {
                     is Resource.Loading -> UiState.Loading
                     is Resource.Success -> UiState.Success(resource.data)

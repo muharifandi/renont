@@ -261,7 +261,7 @@
     <string name="register_partner_blocked_message">Akses kamu ke mitra telah diblokir. Untuk informasi lebih lanjut kamu dapat menghubungi admin lewat menu bantuan</string>
     <string name="register_partner_under_review">Pendaftaran mitra sedang diulas. Ulasan bisa memakan waktu 2x24 Jam!</string>
     <string name="relevance">Relevansi</string>
-    <string name="rent_info">%s - %s , %s Hari</string>
+    <string name="rent_info">%1$s - %2$s , %3$s Hari</string>
     <string name="rent_vehicle">Rental Kendaraan</string>
     <string name="rent_vehicle_config">Konfigurasi Rental Kendaraan</string>
     <string name="request_feature">Permintaan Fitur</string>

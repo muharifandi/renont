@@ -2,10 +2,11 @@ package com.rentone.user.presentation.feature.account
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rentone.user.domain.model.OperationResult
-import com.rentone.user.domain.model.CustomerAccountDetail
 import com.rentone.user.core.common.Resource
 import com.rentone.user.core.common.UiState
+import com.rentone.user.domain.model.CustomerAccountDetail
+import com.rentone.user.domain.model.OperationResult
+import com.rentone.user.domain.model.command.UploadImageCommand
 import com.rentone.user.domain.repository.SessionRepository
 import com.rentone.user.domain.usecase.GetCustomerDetailUseCase
 import com.rentone.user.domain.usecase.UploadCustomerProfileImageUseCase
@@ -13,7 +14,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import okhttp3.MultipartBody
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,9 +46,9 @@ class AccountViewModel @Inject constructor(
         }
     }
 
-    fun uploadProfileImage(image: MultipartBody.Part) {
+    fun uploadProfileImage(imagePath: String) {
         viewModelScope.launch {
-            uploadCustomerProfileImageUseCase(image).collect { resource ->
+            uploadCustomerProfileImageUseCase(UploadImageCommand(imagePath)).collect { resource ->
                 _uploadStatus.value = when (resource) {
                     is Resource.Loading -> UiState.Loading
                     is Resource.Success -> {

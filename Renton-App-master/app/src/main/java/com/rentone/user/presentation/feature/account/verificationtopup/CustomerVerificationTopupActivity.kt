@@ -50,7 +50,7 @@ class CustomerVerificationTopupActivity : AppCompatActivity() {
         topupId = intent.getIntExtra("topup_id", 0)
 
         observeState()
-        viewModel.loadDetail(topupId)
+        viewModel.getDetail(topupId)
     }
 
     private fun setupData(detail: Topup?) {
@@ -74,7 +74,7 @@ class CustomerVerificationTopupActivity : AppCompatActivity() {
         binding.btnVerificationTopup.setOnClickListener {
             val uri = proofImageUri
             if (uri != null) {
-                viewModel.verify(topupId, uri)
+                viewModel.verify(topupId, uri.toString())
             } else {
                 Toast.makeText(this, R.string.proof_topup_cannot_empty, Toast.LENGTH_LONG).show()
             }
@@ -84,8 +84,8 @@ class CustomerVerificationTopupActivity : AppCompatActivity() {
     private fun observeState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                launch { viewModel.detail.collect { state -> handleDetailState(state) } }
-                launch { viewModel.verificationState.collect { state -> handleVerificationState(state) } }
+                launch { viewModel.topupDetail.collect { state -> handleDetailState(state) } }
+                launch { viewModel.verifyStatus.collect { state -> handleVerificationState(state) } }
             }
         }
     }

@@ -147,7 +147,7 @@
     <string name="date_not_selected">No date selected. Pelase select one!</string>
     <string name="time_not_selected">No time pickup selected. Please select one!</string>
     <string name="title_rent_vehicle_list">List Vehicle</string>
-    <string name="rent_info">%s - %s , %s Days</string>
+    <string name="rent_info">%1$s - %2$s , %3$s Days</string>
     <string name="relevance">Relevance</string>
     <string name="closest">Closest</string>
     <string name="vehicle_detail_info">Make sure item available before booking. You can chat owner to get information.</string>

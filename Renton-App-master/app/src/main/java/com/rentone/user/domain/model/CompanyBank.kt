@@ -1,7 +1,9 @@
 package com.rentone.user.domain.model
 
+import kotlinx.serialization.Serializable
 
 
+@Serializable
 data class CompanyBank(
     val id: Int,
     val icon: String? = null,

@@ -1,7 +1,9 @@
 package com.rentone.user.domain.model
 
+import kotlinx.serialization.Serializable
 
 
+@Serializable
 data class TransactionPoint(
     val id: Int,
     val targetId: Int = 0,

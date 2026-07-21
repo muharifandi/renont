@@ -19,7 +19,9 @@ class RentVehicleListReviewViewModel @Inject constructor(
 
     override suspend fun fetchPage(page: Int, pageSize: Int): Result<List<Review>> {
         val result = listVehicleReviewsUseCase(vehicleId, page, pageSize)
-        result.onSuccess { _reviewTotal.value = it.reviewTotal }
-        return result.map { it.reviews }
+        return result.map { 
+            _reviewTotal.value = it.reviewTotal
+            it.reviews 
+        }
     }
 }

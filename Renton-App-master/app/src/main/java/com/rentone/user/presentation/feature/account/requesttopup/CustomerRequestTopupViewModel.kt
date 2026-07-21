@@ -1,10 +1,12 @@
 package com.rentone.user.presentation.feature.account.requesttopup
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rentone.user.domain.model.RequestTopupConfig
-import com.rentone.user.domain.model.TopupRequestResult
 import com.rentone.user.core.common.Resource
 import com.rentone.user.core.common.UiState
+import com.rentone.user.domain.model.RequestTopupConfig
+import com.rentone.user.domain.model.TopupRequestResult
+import com.rentone.user.domain.model.command.TopupRequestCommand
 import com.rentone.user.domain.usecase.GetRequestTopupConfigUseCase
 import com.rentone.user.domain.usecase.PostRequestTopupUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,8 +24,8 @@ class CustomerRequestTopupViewModel @Inject constructor(
     private val _config = MutableStateFlow<UiState<RequestTopupConfig>>(UiState.Idle)
     val config = _config.asStateFlow()
 
-    private val _requestState = MutableStateFlow<UiState<TopupRequestResult>>(UiState.Idle)
-    val requestState = _requestState.asStateFlow()
+    private val _requestStatus = MutableStateFlow<UiState<TopupRequestResult>>(UiState.Idle)
+    val requestStatus = _requestStatus.asStateFlow()
 
     fun loadConfig() {
         viewModelScope.launch {
@@ -38,10 +40,11 @@ class CustomerRequestTopupViewModel @Inject constructor(
         }
     }
 
-    fun requestTopup(companyBankId: Int, value: String) {
+    fun requestTopup(companyBankId: Int, amount: String) {
         viewModelScope.launch {
-            postRequestTopupUseCase(companyBankId, value).collect { resource ->
-                _requestState.value = when (resource) {
+            val command = TopupRequestCommand(companyBankId, amount)
+            postRequestTopupUseCase(command).collect { resource ->
+                _requestStatus.value = when (resource) {
                     is Resource.Loading -> UiState.Loading
                     is Resource.Success -> UiState.Success(resource.data)
                     is Resource.Error -> UiState.Error(resource.message)

@@ -1,8 +1,10 @@
 package com.rentone.user.domain.model
 
+import kotlinx.serialization.Serializable
 import java.io.Serializable as JavaSerializable
 
 
+@Serializable
 data class BasicData(
     val id: Int,
     val name: String,

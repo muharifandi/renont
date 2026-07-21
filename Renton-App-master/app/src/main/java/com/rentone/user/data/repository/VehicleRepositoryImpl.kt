@@ -3,9 +3,7 @@ package com.rentone.user.data.repository
 import com.rentone.user.api.service.BasicService
 import com.rentone.user.api.service.RentVehicleService
 import com.rentone.user.core.common.Resource
-import com.rentone.user.data.mapper.toDomain
-import com.rentone.user.data.mapper.toDomainList
-import com.rentone.user.data.mapper.toSearchResult
+import com.rentone.user.data.mapper.*
 import com.rentone.user.domain.model.*
 import com.rentone.user.domain.model.command.CheckoutCommand
 import com.rentone.user.domain.repository.VehicleRepository
@@ -43,11 +41,11 @@ class VehicleRepositoryImpl @Inject constructor(
     override fun getVehicleDetail(id: Int): Flow<Resource<VehicleDetail>> {
         return safeApiCall(
             apiCall = { rentVehicleService.getVehicleDetail(id) },
-            map = { it.toDomain() }
+            map = { it.toVehicleDetail() }
         )
     }
 
-    override suspend fun listVehicleReviews(vehicleId: Int, page: Int, pageSize: Int): Result<List<Review>> {
+    override suspend fun listVehicleReviews(vehicleId: Int, page: Int, pageSize: Int): Result<ReviewSearchResult> {
         return try {
             val param = mapOf(
                 "id" to vehicleId.toString(),
@@ -57,7 +55,7 @@ class VehicleRepositoryImpl @Inject constructor(
             val response = rentVehicleService.listVehicleReview(param)
             val body = response.body()
             if (response.isSuccessful && body != null) {
-                Result.success(body.toDomainList())
+                Result.success(ReviewSearchResult(body.reviews, body.reviewTotal))
             } else {
                 Result.failure(Exception("Failed to load reviews"))
             }
@@ -72,7 +70,7 @@ class VehicleRepositoryImpl @Inject constructor(
                 val form = mapOf("code" to code.uppercase(), "start_date" to startDate.orEmpty())
                 rentVehicleService.checkVoucherCheckout(form)
             },
-            map = { it.toDomain() }
+            map = { it.toVoucher() }
         )
     }
 
@@ -87,7 +85,7 @@ class VehicleRepositoryImpl @Inject constructor(
                 )
                 rentVehicleService.checkoutDetail(form)
             },
-            map = { it.toDomain() }
+            map = { it.toCheckoutDetail() }
         )
     }
 
@@ -104,7 +102,7 @@ class VehicleRepositoryImpl @Inject constructor(
                 )
                 rentVehicleService.postCheckout(form)
             },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 }

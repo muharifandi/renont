@@ -1,16 +1,12 @@
 package com.rentone.user.presentation.feature.partner.account
-import android.net.Uri
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rentone.user.R
-import com.rentone.user.domain.model.PartnerAccountDetail
 import com.rentone.user.core.common.Resource
 import com.rentone.user.core.common.UiState
-import com.rentone.user.domain.usecase.ChangePartnerBusinessLocationUseCase
-import com.rentone.user.domain.usecase.ChangePartnerRegencyUseCase
-import com.rentone.user.domain.usecase.GetPartnerDetailUseCase
-import com.rentone.user.domain.usecase.RequestPartnerFeatureUseCase
-import com.rentone.user.domain.usecase.UploadPartnerProfileImageUseCase
+import com.rentone.user.domain.model.PartnerAccountDetail
+import com.rentone.user.domain.model.command.UploadImageCommand
+import com.rentone.user.domain.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -47,17 +43,10 @@ class PartnerAccountViewModel @Inject constructor(
         }
     }
 
-    fun uploadProfileImage(uri: Uri) {
+    fun uploadProfileImage(uri: android.net.Uri) {
         viewModelScope.launch {
-            uploadPartnerProfileImageUseCase(uri).collect { resource ->
-                when (resource) {
-                    is Resource.Success -> loadDetail()
-                    is Resource.Error -> {
-                        _actionResult.value = PartnerAccountActionResult(R.string.title_partner_profile, resource.message, false)
-                        loadDetail()
-                    }
-                    else -> Unit
-                }
+            uploadPartnerProfileImageUseCase(UploadImageCommand(uri.toString())).collect { resource ->
+                if (resource is Resource.Success) loadDetail()
             }
         }
     }
@@ -65,10 +54,8 @@ class PartnerAccountViewModel @Inject constructor(
     fun changeRegency(regenciesId: Int) {
         viewModelScope.launch {
             changePartnerRegencyUseCase(regenciesId).collect { resource ->
-                when (resource) {
-                    is Resource.Success -> _actionResult.value = PartnerAccountActionResult(R.string.change_regencies, resource.data.message, true)
-                    is Resource.Error -> _actionResult.value = PartnerAccountActionResult(R.string.change_regencies, resource.message, false)
-                    else -> Unit
+                if (resource is Resource.Success) {
+                    _actionResult.value = PartnerAccountActionResult(com.rentone.user.R.string.regency, resource.data.message, resource.data.success)
                 }
             }
         }
@@ -77,10 +64,8 @@ class PartnerAccountViewModel @Inject constructor(
     fun changeLocation(latitude: Double, longitude: Double) {
         viewModelScope.launch {
             changePartnerBusinessLocationUseCase(latitude, longitude).collect { resource ->
-                when (resource) {
-                    is Resource.Success -> _actionResult.value = PartnerAccountActionResult(R.string.change_bussiness_location, resource.data.message, true)
-                    is Resource.Error -> _actionResult.value = PartnerAccountActionResult(R.string.change_bussiness_location, resource.message, false)
-                    else -> Unit
+                if (resource is Resource.Success) {
+                    _actionResult.value = PartnerAccountActionResult(com.rentone.user.R.string.set_location, resource.data.message, resource.data.success)
                 }
             }
         }
@@ -89,10 +74,8 @@ class PartnerAccountViewModel @Inject constructor(
     fun requestFeature(featureId: Int) {
         viewModelScope.launch {
             requestPartnerFeatureUseCase(featureId).collect { resource ->
-                when (resource) {
-                    is Resource.Success -> _actionResult.value = PartnerAccountActionResult(R.string.request_feature, resource.data.message, true)
-                    is Resource.Error -> _actionResult.value = PartnerAccountActionResult(R.string.request_feature, resource.message, false)
-                    else -> Unit
+                if (resource is Resource.Success) {
+                    _actionResult.value = PartnerAccountActionResult(com.rentone.user.R.string.app_name, resource.data.message, resource.data.success)
                 }
             }
         }

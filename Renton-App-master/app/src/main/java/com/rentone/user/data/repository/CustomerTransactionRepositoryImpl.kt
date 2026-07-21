@@ -2,7 +2,7 @@ package com.rentone.user.data.repository
 
 import com.rentone.user.api.service.CustomerRentService
 import com.rentone.user.core.common.Resource
-import com.rentone.user.data.mapper.toDomain
+import com.rentone.user.data.mapper.*
 import com.rentone.user.domain.model.OperationResult
 import com.rentone.user.domain.model.RentVehicleDetail
 import com.rentone.user.domain.model.RentVehicleTransaction
@@ -33,21 +33,21 @@ class CustomerTransactionRepositoryImpl @Inject constructor(
     override fun getTransactionDetail(id: Int): Flow<Resource<RentVehicleDetail>> {
         return safeApiCall(
             apiCall = { customerRentService.transactionDetail(id) },
-            map = { it.toDomain() }
+            map = { it.toRentVehicleDetail() }
         )
     }
 
     override fun updateTransactionStatus(id: Int, status: Int): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { customerRentService.updateStatusTransaction(mapOf("id" to id.toString(), "status" to status.toString())) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
     override fun cancelTransaction(id: Int): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { customerRentService.cancelTransaction(id) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
@@ -61,7 +61,7 @@ class CustomerTransactionRepositoryImpl @Inject constructor(
                 )
                 customerRentService.postReview(form)
             },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 }

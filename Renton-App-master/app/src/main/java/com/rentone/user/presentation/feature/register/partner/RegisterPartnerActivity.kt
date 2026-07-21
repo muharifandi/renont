@@ -13,8 +13,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.rentone.user.R
 import com.rentone.user.core.common.UiState
-import com.rentone.user.core.util.FileUtils
 import com.rentone.user.databinding.ActivityRegisterBinding
+import com.rentone.user.domain.model.command.RegisterPartnerCommand
 import com.rentone.user.presentation.feature.register.adapter.RegisterFormPagerAdapter
 import com.rentone.user.presentation.feature.register.partner.fragment.RegisterPartnerStepOneFragment
 import com.rentone.user.presentation.feature.register.partner.fragment.RegisterPartnerStepTwoFragment
@@ -24,14 +24,6 @@ import kotlinx.coroutines.launch
 import com.rentone.user.core.util.applyExitTransition
 import com.rentone.user.core.util.setBackPressedHandler
 import com.rentone.user.core.util.setColorFilterCompat
-
-private val IMAGE_FIELD_KEYS = setOf(
-    "img_profile",
-    "img_identity",
-    "img_driver_licence",
-    "img_bussiness_licence",
-    "img_bussiness_registration"
-)
 
 @AndroidEntryPoint
 class RegisterPartnerActivity : AppCompatActivity() {
@@ -131,8 +123,16 @@ class RegisterPartnerActivity : AppCompatActivity() {
             }
         }
 
-        val (form, files) = FileUtils.buildMultipartForm(this, values, IMAGE_FIELD_KEYS)
-        viewModel.register(form, files)
+        val command = RegisterPartnerCommand(
+            companyName = values["company_name"].orEmpty(),
+            description = values["description"].orEmpty(),
+            address = values["address"].orEmpty(),
+            regencyId = values["regencies_id"]?.toIntOrNull() ?: 0,
+            taxNumber = values["tax_number"],
+            profileImagePath = values["img_profile"],
+            identityImagePath = values["img_identity"]
+        )
+        viewModel.register(command)
     }
 
     private fun observeState() {

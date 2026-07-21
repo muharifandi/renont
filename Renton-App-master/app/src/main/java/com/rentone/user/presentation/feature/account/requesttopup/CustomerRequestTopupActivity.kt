@@ -125,7 +125,7 @@ class CustomerRequestTopupActivity : AppCompatActivity() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 launch { viewModel.config.collect { state -> handleConfigState(state) } }
-                launch { viewModel.requestState.collect { state -> handleRequestState(state) } }
+                launch { viewModel.requestStatus.collect { state -> handleRequestState(state) } }
             }
         }
     }

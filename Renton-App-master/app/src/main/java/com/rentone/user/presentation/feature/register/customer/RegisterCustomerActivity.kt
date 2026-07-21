@@ -13,8 +13,8 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.rentone.user.R
 import com.rentone.user.core.common.UiState
-import com.rentone.user.core.util.FileUtils
 import com.rentone.user.databinding.ActivityRegisterBinding
+import com.rentone.user.domain.model.command.RegisterCustomerCommand
 import com.rentone.user.presentation.feature.register.adapter.RegisterFormPagerAdapter
 import com.rentone.user.presentation.feature.register.customer.fragment.RegisterCustomerStepOneFragment
 import com.rentone.user.presentation.feature.register.customer.fragment.RegisterCustomerStepTwoFragment
@@ -24,8 +24,6 @@ import kotlinx.coroutines.launch
 import com.rentone.user.core.util.applyExitTransition
 import com.rentone.user.core.util.setBackPressedHandler
 import com.rentone.user.core.util.setColorFilterCompat
-
-private val IMAGE_FIELD_KEYS = setOf("img_profile", "img_identity")
 
 @AndroidEntryPoint
 class RegisterCustomerActivity : AppCompatActivity() {
@@ -125,8 +123,17 @@ class RegisterCustomerActivity : AppCompatActivity() {
             }
         }
 
-        val (form, files) = FileUtils.buildMultipartForm(this, values, IMAGE_FIELD_KEYS)
-        viewModel.register(form, files)
+        val command = RegisterCustomerCommand(
+            firstName = values["first_name"].orEmpty(),
+            lastName = values["last_name"].orEmpty(),
+            email = values["email"].orEmpty(),
+            phone = values["phone"].orEmpty(),
+            identityNumber = values["identity_number"].orEmpty(),
+            password = values["password"].orEmpty(),
+            profileImagePath = values["img_profile"],
+            identityImagePath = values["img_identity"]
+        )
+        viewModel.register(command)
     }
 
     private fun observeState() {

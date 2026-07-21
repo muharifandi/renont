@@ -1,8 +1,10 @@
 package com.rentone.user.domain.model
 
+import kotlinx.serialization.Serializable
 import java.io.Serializable as JavaSerializable
 
 
+@Serializable
 data class FilterList(
     var status: Int = -1,
     var minPassenger: Int = -1,

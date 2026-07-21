@@ -2,7 +2,7 @@ package com.rentone.user.data.repository
 
 import com.rentone.user.api.service.BasicService
 import com.rentone.user.core.common.Resource
-import com.rentone.user.data.mapper.toDomain
+import com.rentone.user.data.mapper.*
 import com.rentone.user.domain.model.*
 import com.rentone.user.domain.repository.LookupRepository
 import kotlinx.coroutines.flow.Flow
@@ -31,28 +31,28 @@ class LookupRepositoryImpl @Inject constructor(
     override fun checkEmail(email: String): Flow<Resource<ValidationResult>> {
         return safeApiCall(
             apiCall = { basicService.checkEmail(email) },
-            map = { it.toDomain() }
+            map = { it.toValidationResult() }
         )
     }
 
     override fun checkPhone(phone: String): Flow<Resource<ValidationResult>> {
         return safeApiCall(
             apiCall = { basicService.checkPhone(phone) },
-            map = { it.toDomain() }
+            map = { it.toValidationResult() }
         )
     }
 
     override fun checkAgent(agentId: String): Flow<Resource<ValidationResult>> {
         return safeApiCall(
             apiCall = { basicService.checkAgent(agentId) },
-            map = { it.toDomain() }
+            map = { it.toValidationResult() }
         )
     }
 
     override fun checkApplicationStatus(): Flow<Resource<ApplicationStatus>> {
         return safeApiCall(
             apiCall = { basicService.applicationStatus() },
-            map = { it.toDomain() }
+            map = { it.toApplicationStatus() }
         )
     }
 }

@@ -1,7 +1,9 @@
 package com.rentone.user.domain.model
 
+import kotlinx.serialization.Serializable
 
 
+@Serializable
 data class PackagePrice(
     val pricePackage: Int = 0,
     val selectorText: String? = null

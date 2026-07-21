@@ -45,7 +45,7 @@ class CustomerRentVehicleTransactionDetailViewModel @Inject constructor(
         viewModelScope.launch {
             cancelCustomerTransactionUseCase(id).collect { resource ->
                 if (resource is Resource.Success) {
-                    _actionResult.value = CustomerTransactionActionResult(title, resource.data.message, resource.data.status, isCancel = true)
+                    _actionResult.value = CustomerTransactionActionResult(title, resource.data.message, resource.data.success, isCancel = true)
                 }
             }
         }
@@ -55,7 +55,7 @@ class CustomerRentVehicleTransactionDetailViewModel @Inject constructor(
         viewModelScope.launch {
             updateCustomerTransactionStatusUseCase(id, status).collect { resource ->
                 if (resource is Resource.Success) {
-                    _actionResult.value = CustomerTransactionActionResult(title, resource.data.message, resource.data.status, isCancel = false)
+                    _actionResult.value = CustomerTransactionActionResult(title, resource.data.message, resource.data.success, isCancel = false)
                 }
             }
         }

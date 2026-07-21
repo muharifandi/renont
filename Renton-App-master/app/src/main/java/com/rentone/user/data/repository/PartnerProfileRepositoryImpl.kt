@@ -4,7 +4,7 @@ import android.content.Context
 import com.rentone.user.api.service.PartnerService
 import com.rentone.user.core.common.Resource
 import com.rentone.user.core.util.FileUtils
-import com.rentone.user.data.mapper.toDomain
+import com.rentone.user.data.mapper.*
 import com.rentone.user.domain.model.OperationResult
 import com.rentone.user.domain.model.PartnerAccountDetail
 import com.rentone.user.domain.model.command.RegisterPartnerCommand
@@ -41,49 +41,49 @@ class PartnerProfileRepositoryImpl @Inject constructor(
                 }
                 partnerService.register(form, files)
             },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
     override fun getDetail(): Flow<Resource<PartnerAccountDetail>> {
         return safeApiCall(
             apiCall = { partnerService.detail() },
-            map = { it.toDomain() }
+            map = { it.toPartnerAccountDetail() }
         )
     }
 
     override fun changeCompanyName(companyName: String): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { partnerService.changeCompanyName(mapOf("company_name" to companyName)) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
     override fun changeDescription(description: String): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { partnerService.changeDescription(mapOf("description" to description)) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
     override fun changeAddress(address: String): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { partnerService.changeAddress(mapOf("address" to address)) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
     override fun changeRegency(regenciesId: Int): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { partnerService.changeRegency(mapOf("regencies_id" to regenciesId.toString())) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
     override fun changeBusinessLocation(latitude: Double, longitude: Double): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { partnerService.changeBussinessLocation(mapOf("latitude" to latitude.toString(), "longitude" to longitude.toString())) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
@@ -93,7 +93,7 @@ class PartnerProfileRepositoryImpl @Inject constructor(
                 val imagePart = FileUtils.prepareFileImagePart(context, "img_profile", command.imagePath)
                 partnerService.uploadProfileImage(imagePart)
             },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 }

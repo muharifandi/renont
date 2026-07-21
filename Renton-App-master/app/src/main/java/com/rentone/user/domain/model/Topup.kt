@@ -1,7 +1,9 @@
 package com.rentone.user.domain.model
 
+import kotlinx.serialization.Serializable
 
 
+@Serializable
 data class Topup(
     val id: Int,
     val companyBankId: Int = 0,

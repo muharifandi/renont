@@ -1,7 +1,9 @@
 package com.rentone.user.domain.model
 
+import kotlinx.serialization.Serializable
 
 
+@Serializable
 data class CustomerBank(
     val id: Int,
     val accountId: Int = 0,

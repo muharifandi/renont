@@ -47,7 +47,7 @@ class PartnerRentVehicleTransactionDetailViewModel @Inject constructor(
         viewModelScope.launch {
             cancelPartnerTransactionUseCase(id).collect { resource ->
                 if (resource is Resource.Success) {
-                    _actionResult.value = PartnerTransactionActionResult(titleResId = titleResId, message = resource.data.message, success = resource.data.status)
+                    _actionResult.value = PartnerTransactionActionResult(titleResId = titleResId, message = resource.data.message, success = resource.data.success)
                 } else if (resource is Resource.Error) {
                     _actionResult.value = null
                 }
@@ -59,7 +59,7 @@ class PartnerRentVehicleTransactionDetailViewModel @Inject constructor(
         viewModelScope.launch {
             updatePartnerTransactionStatusUseCase(id, status).collect { resource ->
                 if (resource is Resource.Success) {
-                    _actionResult.value = PartnerTransactionActionResult(title = title, message = resource.data.message, success = resource.data.status)
+                    _actionResult.value = PartnerTransactionActionResult(title = title, message = resource.data.message, success = resource.data.success)
                 }
             }
         }
@@ -69,7 +69,7 @@ class PartnerRentVehicleTransactionDetailViewModel @Inject constructor(
         viewModelScope.launch {
             completePartnerTransactionUseCase(id).collect { resource ->
                 if (resource is Resource.Success) {
-                    _actionResult.value = PartnerTransactionActionResult(titleResId = titleResId, message = resource.data.message, success = resource.data.status, isComplete = true)
+                    _actionResult.value = PartnerTransactionActionResult(titleResId = titleResId, message = resource.data.message, success = resource.data.success, isComplete = true)
                 }
             }
         }

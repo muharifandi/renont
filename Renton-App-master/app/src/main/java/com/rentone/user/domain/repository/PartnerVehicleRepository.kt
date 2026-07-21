@@ -11,7 +11,7 @@ interface PartnerVehicleRepository {
     fun getInputVehicleModel(brandId: Int): Flow<Resource<List<BasicData>>>
     fun postVehicle(form: Map<String, String>, photos: List<String>): Flow<Resource<OperationResult>>
     suspend fun uploadVehicleImage(command: UploadImageCommand): Result<UploadImageResult>
-    suspend fun listVehicles(param: Map<String, String>): Result<List<Vehicle>>
+    suspend fun listVehicles(param: Map<String, String>): Result<PartnerVehicleSearchResult>
     fun getVehicleDetail(id: Int): Flow<Resource<Vehicle>>
     suspend fun deleteVehiclePhoto(id: Int): Result<Unit>
     fun deleteVehicle(id: Int): Flow<Resource<OperationResult>>

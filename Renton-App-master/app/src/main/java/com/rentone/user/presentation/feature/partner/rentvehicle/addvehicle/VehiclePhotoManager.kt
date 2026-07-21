@@ -11,9 +11,9 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.LifecycleCoroutineScope
 import coil.load
 import com.rentone.user.R
-import com.rentone.user.api.model.UploadImageResponse
 import com.rentone.user.core.common.Config
 import com.rentone.user.databinding.ItemImageForUploadBinding
+import com.rentone.user.domain.model.UploadImageResult
 import com.rentone.user.domain.model.VehicleItemImage
 import kotlinx.coroutines.launch
 
@@ -26,7 +26,7 @@ class VehiclePhotoManager(
     private val lifecycleScope: LifecycleCoroutineScope,
     private val container: ViewGroup,
     private val preview: ImageView,
-    private val uploadPhoto: suspend (Uri) -> Result<UploadImageResponse>,
+    private val uploadPhoto: suspend (String) -> Result<UploadImageResult>,
     private val deletePhoto: suspend (Int) -> Result<Unit>
 ) {
     data class PhotoEntry(
@@ -62,10 +62,10 @@ class VehiclePhotoManager(
 
     private fun upload(entry: PhotoEntry, uri: Uri) {
         lifecycleScope.launch {
-            val result = uploadPhoto(uri)
+            val result = uploadPhoto(uri.toString())
             entry.isUploading = false
             result.onSuccess { response ->
-                entry.image = entry.image.copy(img = response.filename.orEmpty())
+                entry.image = entry.image.copy(img = response.fileName.orEmpty())
                 entry.uploadFailed = false
             }.onFailure {
                 entry.uploadFailed = true

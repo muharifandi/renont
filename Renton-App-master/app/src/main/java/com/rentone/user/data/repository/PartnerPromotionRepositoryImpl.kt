@@ -2,7 +2,7 @@ package com.rentone.user.data.repository
 
 import com.rentone.user.api.service.PartnerRentService
 import com.rentone.user.core.common.Resource
-import com.rentone.user.data.mapper.toDomain
+import com.rentone.user.data.mapper.*
 import com.rentone.user.domain.model.FilterList
 import com.rentone.user.domain.model.InputPromoteRentVehicleConfig
 import com.rentone.user.domain.model.OperationResult
@@ -33,7 +33,7 @@ class PartnerPromotionRepositoryImpl @Inject constructor(
     override fun getPromoteInputConfig(): Flow<Resource<InputPromoteRentVehicleConfig>> {
         return safeApiCall(
             apiCall = { partnerRentService.getPromoteInputConfig() },
-            map = { it.toDomain() }
+            map = { it.toInputPromoteRentVehicleConfig() }
         )
     }
 
@@ -46,14 +46,14 @@ class PartnerPromotionRepositoryImpl @Inject constructor(
                     "end_date" to endDate
                 ))
             },
-            map = { it.toDomain() }
+            map = { it.toOperationResult() }
         )
     }
 
     override fun cancelPromote(id: Int): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { partnerRentService.cancelPromote(id) },
-            map = { it.toDomain() }
+            map = { it.toOperationResult() }
         )
     }
 }

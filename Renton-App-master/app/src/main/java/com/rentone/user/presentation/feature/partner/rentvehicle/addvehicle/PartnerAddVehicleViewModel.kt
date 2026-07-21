@@ -1,20 +1,11 @@
 package com.rentone.user.presentation.feature.partner.rentvehicle.addvehicle
-import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rentone.user.domain.model.OperationResult
-import com.rentone.user.domain.model.InputVehicleConfig
-import com.rentone.user.api.model.UploadImageResponse
 import com.rentone.user.core.common.Resource
 import com.rentone.user.core.common.UiState
-import com.rentone.user.domain.model.BasicData
-import com.rentone.user.domain.model.Vehicle
-import com.rentone.user.domain.usecase.DeletePartnerVehiclePhotoUseCase
-import com.rentone.user.domain.usecase.GetPartnerVehicleDetailUseCase
-import com.rentone.user.domain.usecase.GetPartnerVehicleInputConfigUseCase
-import com.rentone.user.domain.usecase.GetPartnerVehicleModelsUseCase
-import com.rentone.user.domain.usecase.PostPartnerVehicleUseCase
-import com.rentone.user.domain.usecase.UploadPartnerVehicleImageUseCase
+import com.rentone.user.domain.model.*
+import com.rentone.user.domain.model.command.UploadImageCommand
+import com.rentone.user.domain.usecase.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -95,8 +86,8 @@ class PartnerAddVehicleViewModel @Inject constructor(
         }
     }
 
-    suspend fun uploadPhoto(uri: Uri): Result<UploadImageResponse> =
-        uploadPartnerVehicleImageUseCase(uri)
+    suspend fun uploadPhoto(imagePath: String): Result<UploadImageResult> =
+        uploadPartnerVehicleImageUseCase(UploadImageCommand(imagePath))
 
     suspend fun deletePhoto(id: Int): Result<Unit> = deletePartnerVehiclePhotoUseCase(id)
 }

@@ -71,5 +71,9 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindPartnerFeatureRepository(impl: PartnerFeatureRepositoryImpl): PartnerFeatureRepository
+
+    @Binds
+    @Singleton
     abstract fun bindLookupRepository(impl: LookupRepositoryImpl): LookupRepository
 }

@@ -1,7 +1,9 @@
 package com.rentone.user.domain.model
 
+import kotlinx.serialization.Serializable
 
 
+@Serializable
 data class PartnerDetail(
     val id: Int,
     val ownershipId: Int = 0,

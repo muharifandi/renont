@@ -1,7 +1,9 @@
 package com.rentone.user.domain.model
 
+import kotlinx.serialization.Serializable
 
 
+@Serializable
 data class PromoteVehicle(
     val id: Int,
     val itemId: Int = 0,

@@ -2,7 +2,7 @@ package com.rentone.user.data.repository
 
 import com.rentone.user.api.service.NewsService
 import com.rentone.user.core.common.Resource
-import com.rentone.user.data.mapper.toDomain
+import com.rentone.user.data.mapper.*
 import com.rentone.user.domain.model.News
 import com.rentone.user.domain.model.NewsDetail
 import com.rentone.user.domain.repository.NewsRepository
@@ -25,7 +25,7 @@ class NewsRepositoryImpl @Inject constructor(
     override fun getNewsDetail(id: Int): Flow<Resource<NewsDetail>> {
         return safeApiCall(
             apiCall = { newsService.detail(id) },
-            map = { it.toDomain() }
+            map = { it.toNewsDetail() }
         )
     }
 }

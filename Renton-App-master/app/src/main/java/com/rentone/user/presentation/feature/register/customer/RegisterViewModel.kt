@@ -1,16 +1,15 @@
 package com.rentone.user.presentation.feature.register.customer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rentone.user.domain.model.OperationResult
 import com.rentone.user.core.common.Resource
 import com.rentone.user.core.common.UiState
+import com.rentone.user.domain.model.OperationResult
+import com.rentone.user.domain.model.command.RegisterCustomerCommand
 import com.rentone.user.domain.usecase.RegisterCustomerUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,9 +20,9 @@ class RegisterViewModel @Inject constructor(
     private val _registerState = MutableStateFlow<UiState<OperationResult>>(UiState.Idle)
     val registerState = _registerState.asStateFlow()
 
-    fun register(form: Map<String, RequestBody>, files: List<MultipartBody.Part>) {
+    fun register(command: RegisterCustomerCommand) {
         viewModelScope.launch {
-            registerCustomerUseCase(form, files).collect { resource ->
+            registerCustomerUseCase(command).collect { resource ->
                 _registerState.value = when (resource) {
                     is Resource.Loading -> UiState.Loading
                     is Resource.Success -> UiState.Success(resource.data)

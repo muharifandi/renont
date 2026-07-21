@@ -4,7 +4,7 @@ import android.content.Context
 import com.rentone.user.api.service.PartnerRentService
 import com.rentone.user.core.common.Resource
 import com.rentone.user.core.util.FileUtils
-import com.rentone.user.data.mapper.toDomain
+import com.rentone.user.data.mapper.*
 import com.rentone.user.domain.model.*
 import com.rentone.user.domain.model.command.UploadImageCommand
 import com.rentone.user.domain.repository.PartnerVehicleRepository
@@ -29,7 +29,7 @@ class PartnerVehicleRepositoryImpl @Inject constructor(
     override fun getInputConfig(functionalType: Int): Flow<Resource<InputVehicleConfig>> {
         return safeApiCall(
             apiCall = { partnerRentService.getInputConfig(functionalType) },
-            map = { it.toDomain() }
+            map = { it.toInputVehicleConfig() }
         )
     }
 
@@ -43,7 +43,7 @@ class PartnerVehicleRepositoryImpl @Inject constructor(
     override fun postVehicle(form: Map<String, String>, photos: List<String>): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { partnerRentService.postVehicle(form, photos) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
@@ -62,10 +62,20 @@ class PartnerVehicleRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun listVehicles(param: Map<String, String>): Result<List<Vehicle>> {
+    override suspend fun listVehicles(param: Map<String, String>): Result<PartnerVehicleSearchResult> {
         return try {
             val response = partnerRentService.listVehicle(param)
-            Result.success(response.body()?.vehicles ?: emptyList())
+            val body = response.body()
+            if (response.isSuccessful && body != null) {
+                Result.success(PartnerVehicleSearchResult(
+                    vehicles = body.vehicles,
+                    functionalType = body.functionalType,
+                    priceMin = body.priceMin,
+                    priceMax = body.priceMax
+                ))
+            } else {
+                Result.failure(Exception("Failed to load vehicles"))
+            }
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -74,7 +84,7 @@ class PartnerVehicleRepositoryImpl @Inject constructor(
     override fun getVehicleDetail(id: Int): Flow<Resource<Vehicle>> {
         return safeApiCall(
             apiCall = { partnerRentService.getVehicleDetail(id) },
-            map = { it.vehicle }
+            map = { it.vehicle ?: Vehicle() }
         )
     }
 
@@ -90,7 +100,7 @@ class PartnerVehicleRepositoryImpl @Inject constructor(
     override fun deleteVehicle(id: Int): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { partnerRentService.deleteVehicle(id) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
@@ -104,7 +114,7 @@ class PartnerVehicleRepositoryImpl @Inject constructor(
     override fun updateConfig(form: Map<String, String>): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { partnerRentService.updateConfig(form) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 }

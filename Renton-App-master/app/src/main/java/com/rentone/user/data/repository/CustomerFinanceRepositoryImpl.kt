@@ -4,7 +4,7 @@ import android.content.Context
 import com.rentone.user.api.service.CustomerService
 import com.rentone.user.core.common.Resource
 import com.rentone.user.core.util.FileUtils
-import com.rentone.user.data.mapper.toDomain
+import com.rentone.user.data.mapper.*
 import com.rentone.user.domain.model.*
 import com.rentone.user.domain.model.command.*
 import com.rentone.user.domain.repository.CustomerFinanceRepository
@@ -45,14 +45,14 @@ class CustomerFinanceRepositoryImpl @Inject constructor(
     override fun getExchangePointConfig(): Flow<Resource<ExchangePointConfig>> {
         return safeApiCall(
             apiCall = { customerService.getExchangePointConfig() },
-            map = { it.toDomain() }
+            map = { it.toExchangePointConfig() }
         )
     }
 
     override fun postExchangePoint(point: String): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { customerService.postExchangePoint(mapOf("point" to point)) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
@@ -88,14 +88,14 @@ class CustomerFinanceRepositoryImpl @Inject constructor(
                 command.id?.let { form["id"] = it.toString() }
                 customerService.postBank(form)
             },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
     override fun deleteBank(id: Int): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { customerService.deleteBank(id) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
@@ -118,14 +118,14 @@ class CustomerFinanceRepositoryImpl @Inject constructor(
     override fun getRequestTopupConfig(): Flow<Resource<RequestTopupConfig>> {
         return safeApiCall(
             apiCall = { customerService.getRequestTopupConfig() },
-            map = { it.toDomain() }
+            map = { it.toRequestTopupConfig() }
         )
     }
 
     override fun postRequestTopup(command: TopupRequestCommand): Flow<Resource<TopupRequestResult>> {
         return safeApiCall(
             apiCall = { customerService.postRequestTopup(mapOf("company_bank_id" to command.companyBankId.toString(), "value" to command.amount)) },
-            map = { it.toDomain() }
+            map = { it.toTopupRequestResult() }
         )
     }
 
@@ -136,7 +136,7 @@ class CustomerFinanceRepositoryImpl @Inject constructor(
                 val image = FileUtils.prepareFileImagePart(context, "img_proof", command.imagePath)
                 customerService.verificationTopup(form, image)
             },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 
@@ -152,14 +152,14 @@ class CustomerFinanceRepositoryImpl @Inject constructor(
     override fun getRequestWithdrawConfig(): Flow<Resource<RequestWithdrawConfig>> {
         return safeApiCall(
             apiCall = { customerService.getRequestWithdrawConfig() },
-            map = { it.toDomain() }
+            map = { it.toRequestWithdrawConfig() }
         )
     }
 
     override fun postRequestWithdraw(command: WithdrawRequestCommand): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { customerService.postRequestWithdraw(mapOf("account_bank_id" to command.accountBankId.toString(), "value" to command.amount)) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            map = { it.toOperationResult() }
         )
     }
 }

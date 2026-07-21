@@ -39,7 +39,7 @@ class RegisterCustomerStepOneViewModel @Inject constructor(
             checkEmailUseCase(email).collect { resource ->
                 _emailState.value = when (resource) {
                     is Resource.Loading -> FieldCheckState.Checking
-                    is Resource.Success -> if (resource.data.useEmail) FieldCheckState.Valid() else FieldCheckState.Invalid(resource.data.message)
+                    is Resource.Success -> if (resource.data.isValid) FieldCheckState.Valid() else FieldCheckState.Invalid(resource.data.message)
                     is Resource.Error -> FieldCheckState.Invalid(resource.message)
                     is Resource.Empty -> FieldCheckState.Idle
                 }
@@ -53,7 +53,7 @@ class RegisterCustomerStepOneViewModel @Inject constructor(
             checkPhoneUseCase(phone).collect { resource ->
                 _phoneState.value = when (resource) {
                     is Resource.Loading -> FieldCheckState.Checking
-                    is Resource.Success -> if (resource.data.usePhone) FieldCheckState.Valid() else FieldCheckState.Invalid(resource.data.message)
+                    is Resource.Success -> if (resource.data.isValid) FieldCheckState.Valid() else FieldCheckState.Invalid(resource.data.message)
                     is Resource.Error -> FieldCheckState.Invalid(resource.message)
                     is Resource.Empty -> FieldCheckState.Idle
                 }

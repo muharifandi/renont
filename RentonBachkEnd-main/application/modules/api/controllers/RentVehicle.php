@@ -1,7 +1,7 @@
 <?php
 
 defined('BASEPATH') OR exit('No direct script access allowed');
-require APPPATH.'libraries/REST_Base_Controller.php';
+require APPPATH.'libraries/Api_Base_Controller.php';
 
 /**
  * Vehicle search, detail, and booking (checkout) resource.
@@ -9,7 +9,7 @@ require APPPATH.'libraries/REST_Base_Controller.php';
  * proper HTTP status codes, and require_auth() instead of the old unguarded
  * get_detail_key() call (which threw a fatal error on an invalid/missing key).
  */
-class RentVehicle extends REST_Base_Controller
+class RentVehicle extends Api_Base_Controller
 {
 	public function __construct()
 	{
@@ -371,14 +371,20 @@ class RentVehicle extends REST_Base_Controller
 			if ($balance < $total_payment) {
 				return $this->fail('Gagal Checkout. Saldo anda kurang dari yang dibutuhkan untuk melakukan transaksi ini', 402);
 			}
+		} else {
+			if ($partner_balance < $param['admin_fee']) {
+				return $this->fail("Gagal Checkout. Saat ini mitra tidak dapat menerima COD.\nHarap matikan fitur COD untuk melanjutkan. Hubungi mitra via chat untuk menerima keterangan.", 409);
+			}
+		}
+
+		$this->db->trans_start();
+
+		if ($param['cash_on_delivery'] != 1) {
 			$this->Customer_m->decrease_balance($account->id, $total_payment);
 			if ($param['voucher_id'] != null && $voucher->use_quota == 1 && $voucher->quota > 0) {
 				$this->Basic_m->decrease_voucher_quota($param['voucher_id']);
 			}
 		} else {
-			if ($partner_balance < $param['admin_fee']) {
-				return $this->fail("Gagal Checkout. Saat ini mitra tidak dapat menerima COD.\nHarap matikan fitur COD untuk melanjutkan. Hubungi mitra via chat untuk menerima keterangan.", 409);
-			}
 			$this->Customer_m->decrease_balance($vehicle->account_id, $param['admin_fee']);
 			if ($param['voucher_id'] != null && $voucher->use_quota == 1 && $voucher->quota > 0) {
 				$this->Basic_m->decrease_voucher_quota($param['voucher_id']);
@@ -393,6 +399,12 @@ class RentVehicle extends REST_Base_Controller
 			'title' => $status->name,
 			'description' => ($param['description'] != null) ? $param['description'] : $status->name,
 		]);
+
+		$this->db->trans_complete();
+
+		if ($this->db->trans_status() === FALSE) {
+			return $this->fail('Gagal membuat pesanan, silakan coba lagi', 500);
+		}
 
 		$this->_notify_new_booking($transaction_id, $vehicle->account_id, $account->id);
 

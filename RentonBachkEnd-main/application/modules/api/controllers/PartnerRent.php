@@ -1,12 +1,12 @@
 <?php
 
 defined('BASEPATH') OR exit('No direct script access allowed');
-require APPPATH.'libraries/REST_Base_Controller.php';
+require APPPATH.'libraries/Api_Base_Controller.php';
 
 /**
  * Partner-side vehicle inventory, booking management, and promotion resource.
  */
-class PartnerRent extends REST_Base_Controller
+class PartnerRent extends Api_Base_Controller
 {
 	public function __construct()
 	{
@@ -342,18 +342,30 @@ class PartnerRent extends REST_Base_Controller
 			return $this->forbidden();
 		}
 
+		$this->db->trans_start();
+
 		$this->RentVehicle_m->update_transaction_status($id, 10);
 		$status = $this->RentVehicle_m->get_transaction_status_name(10);
 		$this->RentVehicle_m->add_timeline_transaction(['transaction_id' => $id, 'title' => $status->name, 'description' => $status->name]);
+
+		if ($transaction_detail->cash_on_delivery == 1) {
+			$this->Customer_m->increase_balance($vehicle->account_id, $transaction_detail->admin_fee);
+		} else {
+			$this->Customer_m->increase_balance($transaction_detail->account_id, $transaction_detail->total_payment);
+		}
+
+		$this->db->trans_complete();
+
+		if ($this->db->trans_status() === FALSE) {
+			return $this->fail('Gagal membatalkan pemesanan, silakan coba lagi', 500);
+		}
 
 		$this->_notify_booking($id, $vehicle->account_id, $transaction_detail->account_id,
 			'Berhasil membatalkan rental kendaraan #'.$id, 'Transaksi #'.$id.' telah dibatalkan oleh mitra.');
 
 		if ($transaction_detail->cash_on_delivery == 1) {
-			$this->Customer_m->increase_balance($vehicle->account_id, $transaction_detail->admin_fee);
 			$this->ok(null, 'Berhasil membatalkan pemesanan.');
 		} else {
-			$this->Customer_m->increase_balance($transaction_detail->account_id, $transaction_detail->total_payment);
 			$this->ok(null, 'Berhasil membatalkan pesanan. Biaya Admin akan dikembalikan ke saldo mitra');
 		}
 	}
@@ -379,9 +391,15 @@ class PartnerRent extends REST_Base_Controller
 			return $this->forbidden();
 		}
 
+		$this->db->trans_start();
 		$this->RentVehicle_m->update_transaction_status($id, $new_status);
 		$status = $this->RentVehicle_m->get_transaction_status_name($new_status);
 		$this->RentVehicle_m->add_timeline_transaction(['transaction_id' => $id, 'title' => $status->name, 'description' => $status->name]);
+		$this->db->trans_complete();
+
+		if ($this->db->trans_status() === FALSE) {
+			return $this->fail('Gagal mengubah status pesanan, silakan coba lagi', 500);
+		}
 
 		$this->_notify_booking($id, $vehicle->account_id, $transaction_detail->account_id,
 			'Transaksi #'.$id.' : '.$status->name, 'Transaksi #'.$id.' : '.$status->name);
@@ -441,6 +459,8 @@ class PartnerRent extends REST_Base_Controller
 			$hour_overtime = $interval->h + ($interval->days * 24);
 		}
 
+		$this->db->trans_start();
+
 		$this->RentVehicle_m->update_transaction($id, [
 			'overtime' => ($hour_overtime > 0) ? 1 : 0,
 			'overtime_hour' => $hour_overtime,
@@ -449,9 +469,6 @@ class PartnerRent extends REST_Base_Controller
 		$this->RentVehicle_m->update_transaction_status($id, 8);
 		$status = $this->RentVehicle_m->get_transaction_status_name(8);
 		$this->RentVehicle_m->add_timeline_transaction(['transaction_id' => $id, 'title' => $status->name, 'description' => $status->name]);
-
-		$this->_notify_booking($id, $vehicle->account_id, $transaction_detail->account_id,
-			'Transaksi #'.$id.' : '.$status->name, 'Transaksi #'.$id.' : '.$status->name);
 
 		$this->Basic_m->insert_point_reward([
 			'account_id' => $transaction_detail->account_id,
@@ -469,10 +486,22 @@ class PartnerRent extends REST_Base_Controller
 		$this->_process_partner_rewards($id, $vehicle);
 		$this->_process_agent_commission($transaction_detail, $vehicle);
 
+		if ($transaction_detail->cash_on_delivery != 1) {
+			$this->Customer_m->increase_balance($vehicle->account_id, $transaction_detail->total_payment - $transaction_detail->admin_fee);
+		}
+
+		$this->db->trans_complete();
+
+		if ($this->db->trans_status() === FALSE) {
+			return $this->fail('Gagal menyelesaikan pesanan, silakan coba lagi', 500);
+		}
+
+		$this->_notify_booking($id, $vehicle->account_id, $transaction_detail->account_id,
+			'Transaksi #'.$id.' : '.$status->name, 'Transaksi #'.$id.' : '.$status->name);
+
 		if ($transaction_detail->cash_on_delivery == 1) {
 			$this->ok(null, 'Berhasil menyelesaikan pesanan. Pastikan mitra mendapat denda keterlambatan dari pelanggan jika tersedia.');
 		} else {
-			$this->Customer_m->increase_balance($vehicle->account_id, $transaction_detail->total_payment - $transaction_detail->admin_fee);
 			$this->ok(null, 'Berhasil menyelesaikan pesanan. Pembayaran yang telah dipotong biaya admin akan ditambahkan ke saldo mitra');
 		}
 	}
@@ -712,8 +741,14 @@ class PartnerRent extends REST_Base_Controller
 
 		$total_return = $promote->price_per_day * $interval;
 
+		$this->db->trans_start();
 		$this->PartnerRent_m->update_promote($id, ['canceled_total_return' => $total_return, 'status' => 3]);
 		$this->Customer_m->increase_balance($account->id, $total_return);
+		$this->db->trans_complete();
+
+		if ($this->db->trans_status() === FALSE) {
+			return $this->fail('Gagal membatalkan promosi, silakan coba lagi', 500);
+		}
 
 		$this->ok(null, 'Berhasil membatalkan promosi. Sisa '.$interval.' Hari sebesar Rp.'.number_format($total_return, 2, ',', '.').' telah dikembalikan ke saldo.');
 	}

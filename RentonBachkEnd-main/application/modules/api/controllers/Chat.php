@@ -1,12 +1,12 @@
 <?php
 
 defined('BASEPATH') OR exit('No direct script access allowed');
-require APPPATH.'libraries/REST_Base_Controller.php';
+require APPPATH.'libraries/Api_Base_Controller.php';
 
 /**
  * Customer <-> Partner chat resource.
  */
-class Chat extends REST_Base_Controller
+class Chat extends Api_Base_Controller
 {
 	public function __construct()
 	{

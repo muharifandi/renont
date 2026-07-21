@@ -46,3 +46,7 @@ Thumbs.db
 # Build variants specific files
 /app/release/
 /app/debug/
+
+# Environment config files
+configdev.env
+configprod.env

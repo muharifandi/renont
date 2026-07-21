@@ -1,6 +1,8 @@
 package com.nusatim.sapiriku.data.repository
 
 import android.content.Context
+import com.nusatim.sapiriku.api.model.ChangePasswordRequest
+import com.nusatim.sapiriku.api.model.UpdateNameRequest
 import com.nusatim.sapiriku.api.service.CustomerService
 import com.nusatim.sapiriku.core.common.Resource
 import com.nusatim.sapiriku.core.util.FileUtils
@@ -23,21 +25,21 @@ class CustomerAccountRepositoryImpl @Inject constructor(
 
     override fun getDetail(): Flow<Resource<CustomerAccountDetail>> {
         return safeApiCall(
-            apiCall = { customerService.detail() },
-            map = { it.toCustomerAccountDetail() }
+            apiCall = { customerService.getDetail() },
+            map = { response -> response.data?.toCustomerAccountDetail() ?: throw Exception("Empty data") }
         )
     }
 
     override fun changeName(firstName: String, lastName: String): Flow<Resource<OperationResult>> {
         return safeApiCall(
-            apiCall = { customerService.changeName(mapOf("first_name" to firstName, "last_name" to lastName)) },
+            apiCall = { customerService.updateName(UpdateNameRequest(firstName, lastName)) },
             map = { it.toOperationResult() }
         )
     }
 
     override fun changePassword(oldPassword: String, newPassword: String): Flow<Resource<OperationResult>> {
         return safeApiCall(
-            apiCall = { customerService.changePassword(mapOf("old_password" to oldPassword, "new_password" to newPassword)) },
+            apiCall = { customerService.changePassword(ChangePasswordRequest(oldPassword, newPassword)) },
             map = { it.toOperationResult() }
         )
     }
@@ -54,8 +56,8 @@ class CustomerAccountRepositoryImpl @Inject constructor(
 
     override fun getHomeData(): Flow<Resource<HomeData>> {
         return safeApiCall(
-            apiCall = { customerService.home() },
-            map = { it.toHomeData() }
+            apiCall = { customerService.getHome() },
+            map = { response -> response.data?.toHomeDataDomain() ?: throw Exception("Empty data") }
         )
     }
 }

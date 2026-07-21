@@ -1,6 +1,7 @@
 package com.nusatim.sapiriku.data.repository
 
 import android.content.Context
+import com.nusatim.sapiriku.api.model.UpdatePartnerProfileRequest
 import com.nusatim.sapiriku.api.service.PartnerService
 import com.nusatim.sapiriku.core.common.Resource
 import com.nusatim.sapiriku.core.util.FileUtils
@@ -47,42 +48,42 @@ class PartnerProfileRepositoryImpl @Inject constructor(
 
     override fun getDetail(): Flow<Resource<PartnerAccountDetail>> {
         return safeApiCall(
-            apiCall = { partnerService.detail() },
-            map = { it.toPartnerAccountDetail() }
+            apiCall = { partnerService.getDetail() },
+            map = { it.data?.toPartnerAccountDetail() ?: throw Exception("Empty data") }
         )
     }
 
     override fun changeCompanyName(companyName: String): Flow<Resource<OperationResult>> {
         return safeApiCall(
-            apiCall = { partnerService.changeCompanyName(mapOf("company_name" to companyName)) },
+            apiCall = { partnerService.updateProfile(UpdatePartnerProfileRequest(companyName = companyName)) },
             map = { it.toOperationResult() }
         )
     }
 
     override fun changeDescription(description: String): Flow<Resource<OperationResult>> {
         return safeApiCall(
-            apiCall = { partnerService.changeDescription(mapOf("description" to description)) },
+            apiCall = { partnerService.updateProfile(UpdatePartnerProfileRequest(description = description)) },
             map = { it.toOperationResult() }
         )
     }
 
     override fun changeAddress(address: String): Flow<Resource<OperationResult>> {
         return safeApiCall(
-            apiCall = { partnerService.changeAddress(mapOf("address" to address)) },
+            apiCall = { partnerService.updateProfile(UpdatePartnerProfileRequest(address = address)) },
             map = { it.toOperationResult() }
         )
     }
 
     override fun changeRegency(regenciesId: Int): Flow<Resource<OperationResult>> {
         return safeApiCall(
-            apiCall = { partnerService.changeRegency(mapOf("regencies_id" to regenciesId.toString())) },
+            apiCall = { partnerService.updateProfile(UpdatePartnerProfileRequest(regenciesId = regenciesId)) },
             map = { it.toOperationResult() }
         )
     }
 
     override fun changeBusinessLocation(latitude: Double, longitude: Double): Flow<Resource<OperationResult>> {
         return safeApiCall(
-            apiCall = { partnerService.changeBussinessLocation(mapOf("latitude" to latitude.toString(), "longitude" to longitude.toString())) },
+            apiCall = { partnerService.updateProfile(UpdatePartnerProfileRequest(latitude = latitude, longitude = longitude)) },
             map = { it.toOperationResult() }
         )
     }

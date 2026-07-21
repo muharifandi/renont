@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.nusatim.sapiriku">
+    xmlns:tools="http://schemas.android.com/tools">
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
@@ -23,63 +23,79 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        tools:ignore="UnusedAttribute">
         <activity android:name=".presentation.feature.rentvehicle.listreview.RentVehicleListReviewActivity"
             android:label="@string/title_list_review"
-            android:theme="@style/AppTheme.WithActionbar"/>
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false"/>
         <activity
             android:name=".presentation.feature.customer.detail.CustomerDetailActivity"
             android:label="@string/title_customer_detail"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.partner.reward.PartnerRewardActivity"
             android:label="@string/title_partner_reward"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.home.about.AboutActivity"
             android:label="@string/title_about"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.chat.conversation.ChatActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.chat.roomlist.ListChatRoomActivity"
             android:label="@string/chat"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.news.detail.NewsDetailActivity"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.news.list.NewsActivity"
             android:label="@string/title_news"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.partner.rentvehicle.reviewcustomer.PartnerReviewCustomerTransactionActivity"
             android:label="@string/title_partner_review_customer_transaction"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.customer.rentvehicle.reviewpartner.CustomerReviewPartnerTransactionActivity"
             android:label="@string/title_customer_review_partner_transaction"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.partner.rentvehicle.transactiondetail.PartnerRentVehicleTransactionDetailActivity"
             android:label="@string/title_partner_rent_vehicle_transaction_detail"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.partner.rentvehicle.transaction.PartnerTransactionActivity"
             android:label="@string/title_partner_rent_vehicle_transaction"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.customer.rentvehicle.transactiondetail.CustomerRentVehicleTransactionDetailActivity"
             android:label="@string/title_customer_rent_vehicle_transaction_detail"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.partner.rentvehicle.config.PartnerRentVehicleConfigActivity"
             android:label="@string/title_rent_vehicle_settings"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.common.message.MessageActivity"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.common.selectregency.SelectRegencyActivity"
             android:label="@string/title_select_regency"
@@ -96,116 +112,135 @@
         <activity
             android:name=".presentation.feature.partner.changeaddress.PartnerChangeAddressActivity"
             android:label="@string/title_partner_change_address"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.partner.changedescription.PartnerChangeDescriptionActivity"
             android:label="@string/title_partner_change_description"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.partner.changecompanyname.PartnerChangeCompanyNameActivity"
             android:label="@string/title_partner_change_company_name"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.partner.account.PartnerAccountActivity"
             android:label="@string/title_partner_profile"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.account.exchangepoint.CustomerExcangePointActivity"
             android:label="@string/title_customer_exchange_point"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.account.historypoint.CustomerHistoryPointActivity"
             android:label="@string/title_customer_history_point"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.account.requestwithdraw.CustomerRequestWithdrawActivity"
             android:label="@string/title_customer_request_withdraw"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.account.verificationtopup.CustomerVerificationTopupActivity"
             android:label="@string/title_customer_topup_verification"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.account.requesttopup.CustomerRequestTopupActivity"
             android:label="@string/title_customer_request_topup"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.account.historybalance.CustomerHistoryBalanceActivity"
             android:label="@string/title_customer_history_balance"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.account.changename.CustomerChangeNameActivity"
             android:label="@string/title_customer_change_name"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.account.changepassword.CustomerChangePasswordActivity"
             android:label="@string/title_customer_change_password"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.account.addbank.CustomerAddBankActivity"
             android:label="@string/title_customer_add_bank"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.account.banklist.CustomerBankListActivity"
             android:label="@string/title_customer_bank"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.rentvehicle.checkout.RentVehicleOrderCheckoutActivity"
             android:label="@string/title_rent_vehicle_checkout"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.rentvehicle.itemdetail.VehicleItemDetailActivity"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.rentvehicle.listvehicle.RentVehicleListVehicleActivity"
             android:label="@string/title_rent_vehicle_list"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.rentvehicle.datepicker.RentVehicleDatePickerActivity"
             android:label="@string/title_select_date"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.common.zoomimage.ZoomImageListActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.common.listsort.ListSortActivity"
             android:label="@string/title_sort"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.filter.ListFilterActivity"
             android:label="@string/title_filters"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.partner.rentvehicle.itemdetail.PartnerRentVehicleItemDetailActivity"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.partner.rentvehicle.listvehicle.PartnerListRentVehicleActivity"
             android:label="@string/menu_rent_vehicle"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.partner.rentvehicle.listpromote.PartnerListPromoteRentVehicleActivity"
             android:label="@string/menu_promote_rent_vehicle"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.partner.rentvehicle.addpromote.PartnerAddPromoteRentVehicleActivity"
             android:label="@string/menu_add_promote_rent_vehicle"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.rentvehicle.selectregency.RentVehicleSelectRegencyActivity"
             android:label="@string/title_activity_rent_vehicle_select_regency"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.home.HomeActivity"
             android:label="@string/title_activity_home"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <!--
-             The API key for Google Maps-based APIs is defined as a string resource.
-             (See the file "res/values/google_maps_api.xml").
-             Note that the API key is linked to the encryption key used to sign the APK.
-             You need a different API key for each encryption key, including the release key that is used to
-             sign the APK for publishing.
-             You can define the keys for the debug and release targets in src/debug/ and src/release/.
-        -->
+            android:theme="@style/AppTheme.NoActionBar"
+            android:exported="false" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
@@ -216,15 +251,18 @@
         <activity
             android:name=".presentation.feature.common.locationpick.LocationPickActivity"
             android:label="@string/title_activity_location_pick"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.register.customer.RegisterCustomerActivity"
             android:label="@string/title_activity_register_customer"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.register.partner.RegisterPartnerActivity"
             android:label="@string/title_activity_register_partner"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
         <activity
             android:name=".presentation.feature.splash.SplashActivity"
             android:exported="true"
@@ -238,16 +276,18 @@
         <activity
             android:name=".presentation.feature.login.LoginActivity"
             android:label="@string/title_activity_login_customer"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
 
         <activity
             android:name=".presentation.feature.partner.rentvehicle.addvehicle.PartnerAddVehicleActivity"
-            android:theme="@style/AppTheme.WithActionbar" />
+            android:theme="@style/AppTheme.WithActionbar"
+            android:exported="false" />
 
         <service
             android:name=".service.UpdateLocationByGpsService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="false" />
         <service
             android:name=".service.FirebaseCloudMessagingService"
             android:exported="false">

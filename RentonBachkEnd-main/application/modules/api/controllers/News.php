@@ -1,7 +1,7 @@
 <?php
 
 defined('BASEPATH') OR exit('No direct script access allowed');
-require APPPATH.'libraries/REST_Base_Controller.php';
+require APPPATH.'libraries/Api_Base_Controller.php';
 
 /**
  * In-app news / promo content resource.
@@ -9,7 +9,7 @@ require APPPATH.'libraries/REST_Base_Controller.php';
  * GET api/news          -> list (query: page, limit; header key required)
  * GET api/news/{id}      -> detail (public, no key required)
  */
-class News extends REST_Base_Controller
+class News extends Api_Base_Controller
 {
 	public function __construct()
 	{

@@ -6,6 +6,36 @@ Catatan setiap perubahan pada `RentonBachkEnd-main/`, diurutkan dari yang terbar
 
 ## 2026-07-22
 
+### [2026-07-22 05:12] Selaraskan `com.nusatim.sapiriku.api.service` (Android) dengan REST API baru + proteksi secret di git
+- **Android — 9 service interface diselaraskan penuh** (`BasicService`, `ChatService`, `NewsService`, `PartnerRewardService`, `RentVehicleService`, `PartnerService`, `CustomerRentService`, `CustomerService`, `PartnerRentService`): verb/path dikoreksi ke kontrak REST baru, body request diganti dari `@FormUrlEncoded` ke `@Body` JSON bertipe, dan seluruh response model direstruktur mengikuti `ApiEnvelope<T>` baru (`api/model/ApiEnvelope.kt`) yang mencerminkan bentuk asli backend `{status, message, data, meta?}` — model lama menaruh field data sejajar dengan `status`/`message`, tidak sesuai kenyataan.
+- **Bug ditemukan saat cross-check** (belum diperbaiki): `Customer_m::list_transaction_point()` (api module) tidak ada filter `WHERE account_id` — endpoint `GET api/customer/point_transactions` bocor riwayat poin SEMUA customer, bukan cuma milik akun yang login. Dicatat di [TODO.md](TODO.md).
+- **Endpoint yang hilang tanpa pengganti jelas, ditandai di kode alih-alih ditebak:** `Basic::getRecomendationRentVehicle` (fungsinya sekarang menyatu ke `RentVehicle.listVehicle`), `News::listPreview` (model method `News_m::list_preview()` masih ada, tidak ada route yang memanggilnya).
+- **Proteksi secret di git:** `.gitignore` ditambah untuk `**/application/config/*/app_secret.php` (nilai secret backend) dan `.claude/` (config tool lokal) — keduanya sempat ter-stage tidak sengaja. `Renton-App-master/configdev.env`/`configprod.env` (berisi secret yang sama di sisi Android, sudah di-gitignore proyek Android itu sendiri) juga di-unstage sebelum commit karena repo ini public.
+- **Belum dikerjakan (di luar cakupan sesi ini):** lapisan repository/mapper/ViewModel Android yang memakai 9 service ini akan error kompilasi karena bentuk response berubah total — perlu diperbaiki manual pakai data class baru sebagai acuan. ±45 file model response Android lama sekarang orphan, belum dihapus.
+
+### [2026-07-22 03:46] Fix: `X-App-Secret` masih ditolak walau header sudah dikirim dari app
+- **Penyebab:** nilai secret di backend (`application/config/development/app_secret.php`, environment yang aktif untuk `localhost`/LAN IP) beda dengan nilai di `Renton-App-master/configdev.env`/`configprod.env` — bukan bug logika, murni nilai tidak sinkron.
+- **Fix:** ketiga environment backend (`development`/`testing`/`production`) diseragamkan ke nilai yang sudah ada di `configdev.env`/`configprod.env`: `f746e5de6f392dc09c120b548e858af95e27e79205843c7e71137afa187a18e5`.
+
+### [2026-07-22 03:41] Fix: transaksi database di seluruh alur finansial (temuan kritis RentOn-Audit-Database-Query.md)
+- **Bukti bug nyata sebelum perbaikan** (`admin/models/Customer_m.php::update_topup_status()`): kredit saldo customer dan penandaan `processed=1` adalah 2 statement UPDATE terpisah tanpa transaksi. Kalau proses mati/timeout di antara keduanya, saldo sudah bertambah tapi `processed` masih 0 — panggilan ulang (retry) akan menambah saldo LAGI untuk topup yang sama (double-credit). Pola identik ada di `update_withdraw_status()`.
+- **Fix:** membungkus `$this->db->trans_start()`/`trans_complete()` + cek `trans_status()` (return 500 kalau gagal, sebelum notifikasi FCM dikirim) di seluruh endpoint yang melakukan >1 write finansial:
+  - `admin/Customer.php`: `topup_status_put()`, `withdraw_status_put()`
+  - `api/Customer.php`: `point_exchange_post()` (update saldo+poin & insert riwayat transaksi_point terpisah)
+  - `api/RentVehicle.php`: `bookings_post()` (checkout — potong saldo/voucher, insert transaksi, insert timeline)
+  - `api/PartnerRent.php`: `booking_done_put()` (settle pembayaran + 2× poin reward + reward partner + komisi agent + kredit saldo — paling kompleks), `bookings_delete()`, `booking_status_put()`, `promotions_delete()` (refund promosi)
+  - `api/CustomerRent.php`: `bookings_delete()`, `booking_status_put()`
+- **Tidak diubah (sengaja):** `topups_post()`/`withdraws_post()`/`topup_proof_post()` di `api/Customer.php` — masing-masing cuma satu write, tidak butuh transaksi.
+- **Catatan sisa:** notifikasi FCM di dalam `_process_partner_rewards()` (dipanggil dari `booking_done_put()`) masih terselip di antara insert reward per-iterasi loop, bukan dipindah ke luar transaksi — kalau butuh kesempurnaan penuh (notifikasi hanya terkirim setelah transaksi pasti sukses), perlu refactor lebih lanjut untuk method itu. Bukan masalah keamanan/uang, cuma potensi notifikasi "nyasar" pada skenario kegagalan yang sangat jarang.
+
+### [2026-07-22 02:35] Fitur: proteksi app-secret khusus modul `api` (mobile app)
+- **Kenapa:** sebelum ini, siapa pun yang tahu URL bisa memanggil `api/*` langsung pakai curl/Postman tanpa harus lewat aplikasi Android — tidak ada yang membedakan "request dari app resmi" vs "request dari tool generik". Ini permintaan eksplisit user untuk membatasi akses hanya dari app tertentu.
+- **Implementasi:** header baru wajib `X-App-Secret` dicek di `Api_Base_Controller` (baru, `application/libraries/Api_Base_Controller.php`, extends `REST_Base_Controller`) sebelum controller method mana pun jalan — dibandingkan pakai `hash_equals()` (timing-safe) terhadap nilai di `application/config/{development,testing,production}/app_secret.php` (baru, secret 32-byte random per environment). Kesembilan controller modul `api` (`Basic`, `Chat`, `Customer`, `CustomerRent`, `News`, `Partner`, `PartnerRent`, `PartnerReward`, `RentVehicle`) diubah dari `extends REST_Base_Controller` ke `extends Api_Base_Controller`.
+- **Sengaja dibatasi hanya modul `api`** — bukan `admin`/`agent`/`auth`, karena hanya `api` yang dipanggil aplikasi Android; ketiga modul lain akan dipanggil frontend admin baru (web), jadi tidak relevan dibatasi dengan "app secret" ala mobile.
+- **Batasan yang perlu disadari:** ini bukan proteksi anti-reverse-engineering — secret yang ditanam di APK tetap bisa diekstrak lewat decompile. Fungsinya menyaring tool generik (curl/Postman/scanner otomatis), bukan mencegah penyerang yang serius membongkar APK. Kalau butuh jaminan lebih kuat (verifikasi app+device asli), perlu integrasi Google Play Integrity API — effort jauh lebih besar, ditunda dulu atas keputusan user.
+- **`openapi/openapi.json` ikut diperbarui** — 92 operation di 77 path `/api/*` sekarang mendeklarasikan security scheme `AppSecret` (selain `ApiKeyAuth` yang sudah ada), supaya "Try it out" di Swagger tetap bisa dites.
+- ⚠️ **Tindakan lanjutan di sisi Android app:** setiap request dari app WAJIB menyertakan header `X-App-Secret: <nilai dari app_secret.php sesuai environment>` — belum diimplementasikan di `Renton-App-master`, perlu ditambahkan (mis. lewat OkHttp interceptor) sebelum app bisa memanggil API lagi.
+
 ### [2026-07-22 01:41] Commit: tidak ada perubahan backend baru
 - Tidak ada perubahan di `RentonBachkEnd-main/` sejak commit sebelumnya (`a7f2b22`). Commit kali ini hanya menyertakan perubahan `Renton-App-master/` (Android app) yang sedang pending, atas konfirmasi eksplisit.
 

@@ -19,6 +19,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.nusatim.sapiriku.BuildConfig
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -47,7 +48,8 @@ object NetworkModule {
         return Interceptor { chain ->
             val user = runBlocking { userDao.getUser().firstOrNull() }
             val request = chain.request().newBuilder()
-                .header("User-Agent", "com.nusatim.sapiriku")
+                .header("User-Agent", BuildConfig.APPLICATION_ID)
+                .header("X-App-Secret", BuildConfig.SECRET_KEY)
                 .apply {
                     user?.key?.let { header("key", it) }
                 }

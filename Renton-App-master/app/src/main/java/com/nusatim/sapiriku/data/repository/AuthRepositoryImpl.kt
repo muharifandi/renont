@@ -1,5 +1,6 @@
 package com.nusatim.sapiriku.data.repository
 
+import com.nusatim.sapiriku.api.model.LoginRequest
 import com.nusatim.sapiriku.api.service.CustomerService
 import com.nusatim.sapiriku.core.common.Resource
 import com.nusatim.sapiriku.core.util.FileUtils
@@ -22,11 +23,11 @@ class AuthRepositoryImpl @Inject constructor(
 
     override fun login(email: String, password: String): Flow<Resource<LoginResult>> {
         return safeApiCall(
-            apiCall = { customerService.login(mapOf("email" to email, "password" to password)) },
+            apiCall = { customerService.login(LoginRequest(email, password)) },
             map = { response -> 
                 LoginResult(
-                    id = response.id,
-                    key = response.key,
+                    id = response.data?.accountId ?: 0,
+                    key = response.data?.key ?: "",
                     message = response.message
                 )
             }

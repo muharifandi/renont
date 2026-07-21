@@ -1,6 +1,8 @@
 package com.nusatim.sapiriku.data.repository
 
+import com.nusatim.sapiriku.api.model.FeatureRequestRequest
 import com.nusatim.sapiriku.api.service.PartnerService
+import com.nusatim.sapiriku.data.mapper.*
 import com.nusatim.sapiriku.core.common.Resource
 import com.nusatim.sapiriku.domain.model.OperationResult
 import com.nusatim.sapiriku.domain.repository.PartnerFeatureRepository
@@ -15,8 +17,8 @@ class PartnerFeatureRepositoryImpl @Inject constructor(
 
     override fun requestFeature(featureId: Int): Flow<Resource<OperationResult>> {
         return safeApiCall(
-            apiCall = { partnerService.requestFeature(mapOf("feature_id" to featureId.toString())) },
-            map = { OperationResult(it.status, it.message ?: "") }
+            apiCall = { partnerService.requestFeature(FeatureRequestRequest(featureId)) },
+            map = { it.toOperationResult() }
         )
     }
 }

@@ -1,109 +1,127 @@
 package com.nusatim.sapiriku.api.service
 
-import com.nusatim.sapiriku.api.model.BasicListResponse
-import com.nusatim.sapiriku.api.model.BasicResponse
-import com.nusatim.sapiriku.api.model.FunctionalTypeResponse
-import com.nusatim.sapiriku.api.model.InputPromoteRentVehicleConfigResponse
-import com.nusatim.sapiriku.api.model.InputVehicleConfigResponse
-import com.nusatim.sapiriku.api.model.ListRentVehicleTransactionResponse
-import com.nusatim.sapiriku.api.model.PartnerListPromoteVehicleResponse
-import com.nusatim.sapiriku.api.model.PartnerListVehicleResponse
-import com.nusatim.sapiriku.api.model.PartnerRentVehicleConfigResponse
-import com.nusatim.sapiriku.api.model.PatnerVehicleDetailResponse
-import com.nusatim.sapiriku.api.model.RentVehicleDetailResponse
-import com.nusatim.sapiriku.api.model.UploadImageResponse
+import com.nusatim.sapiriku.api.model.ApiEnvelope
+import com.nusatim.sapiriku.api.model.BookingDetailData
+import com.nusatim.sapiriku.api.model.BookingListData
+import com.nusatim.sapiriku.api.model.BookingReviewRequest
+import com.nusatim.sapiriku.api.model.CreatePromotionRequest
+import com.nusatim.sapiriku.api.model.FunctionalTypesData
+import com.nusatim.sapiriku.api.model.PartnerRentConfigData
+import com.nusatim.sapiriku.api.model.PartnerVehicleDetailData
+import com.nusatim.sapiriku.api.model.PartnerVehicleListData
+import com.nusatim.sapiriku.api.model.PromoteListData
+import com.nusatim.sapiriku.api.model.PromotionCreatedData
+import com.nusatim.sapiriku.api.model.PromotionInputConfigData
+import com.nusatim.sapiriku.api.model.UpdateBookingStatusRequest
+import com.nusatim.sapiriku.api.model.UpdatePartnerRentConfigRequest
+import com.nusatim.sapiriku.api.model.UploadPhotoData
+import com.nusatim.sapiriku.api.model.VehicleCreatedData
+import com.nusatim.sapiriku.api.model.VehicleInputConfigData
+import com.nusatim.sapiriku.api.model.VehicleModelsData
+import com.nusatim.sapiriku.api.model.VehiclePayloadRequest
 import okhttp3.MultipartBody
 import retrofit2.Response
-import retrofit2.http.Field
-import retrofit2.http.FieldMap
-import retrofit2.http.FormUrlEncoded
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
 import retrofit2.http.Multipart
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Part
+import retrofit2.http.Path
+import retrofit2.http.Query
 
+/** Maps to RentonBachkEnd-main/application/modules/api/controllers/PartnerRent.php -- requires `key` header (partner role). */
 interface PartnerRentService {
 
-    @POST("partnerRent/get_functional_type")
-    suspend fun getFunctionalType(): Response<FunctionalTypeResponse>
+    @GET("partnerRent/functional_types")
+    suspend fun getFunctionalTypes(): Response<ApiEnvelope<FunctionalTypesData>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/get_input_config")
-    suspend fun getInputConfig(@Field("functional_type") functionalType: Int): Response<InputVehicleConfigResponse>
+    @GET("partnerRent/vehicle_input_config")
+    suspend fun getVehicleInputConfig(@Query("functional_type") functionalType: Int): Response<ApiEnvelope<VehicleInputConfigData>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/get_input_vehicle_model")
-    suspend fun getInputVehicleModel(@Field("brand_id") brandId: Int): Response<BasicListResponse>
+    @GET("partnerRent/vehicle_models")
+    suspend fun getVehicleModels(@Query("brand_id") brandId: Int): Response<ApiEnvelope<VehicleModelsData>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/post_vehicle")
-    suspend fun postVehicle(
-        @FieldMap param: Map<String, String>,
-        @Field("photos[]") photos: List<String>
-    ): Response<BasicResponse>
-
+    /** Upload each photo separately first, collect the returned filenames into [VehiclePayloadRequest.photos]. */
     @Multipart
-    @POST("partnerRent/upload_vehicle_image")
-    suspend fun uploadVehicleImage(@Part photo: MultipartBody.Part): Response<UploadImageResponse>
+    @POST("partnerRent/vehicle_photos")
+    suspend fun uploadVehiclePhoto(@Part photo: MultipartBody.Part): Response<ApiEnvelope<UploadPhotoData>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/list_vehicle")
-    suspend fun listVehicle(@FieldMap param: Map<String, String>): Response<PartnerListVehicleResponse>
+    @DELETE("partnerRent/vehicle_photos/{id}")
+    suspend fun deleteVehiclePhoto(@Path("id") id: Int): Response<ApiEnvelope<Unit?>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/vehicle_detail")
-    suspend fun getVehicleDetail(@Field("id") id: Int): Response<PatnerVehicleDetailResponse>
+    @POST("partnerRent/vehicles")
+    suspend fun createVehicle(@Body request: VehiclePayloadRequest): Response<ApiEnvelope<VehicleCreatedData>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/delete_vehicle_photo")
-    suspend fun deleteVehiclePhoto(@Field("id") id: Int): Response<BasicResponse>
+    @PUT("partnerRent/vehicles/{id}")
+    suspend fun updateVehicle(@Path("id") id: Int, @Body request: VehiclePayloadRequest): Response<ApiEnvelope<Unit?>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/delete_vehicle")
-    suspend fun deleteVehicle(@Field("id") id: Int): Response<BasicResponse>
+    @GET("partnerRent/vehicles")
+    suspend fun listVehicles(
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 10,
+        @Query("sort") sort: Int? = null,
+        @Query("status") status: Int? = null,
+        @Query("min_passenger") minPassenger: Int? = null,
+        @Query("max_passenger") maxPassenger: Int? = null,
+        @Query("min_price") minPrice: Double? = null,
+        @Query("max_price") maxPrice: Double? = null,
+        @Query("vehicle_functional_type_selected") functionalTypeSelected: String? = null
+    ): Response<ApiEnvelope<PartnerVehicleListData>>
 
-    @POST("partnerRent/config")
-    suspend fun config(): Response<PartnerRentVehicleConfigResponse>
+    @GET("partnerRent/vehicles/{id}")
+    suspend fun getVehicleDetail(@Path("id") id: Int): Response<ApiEnvelope<PartnerVehicleDetailData>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/update_config")
-    suspend fun updateConfig(@FieldMap param: Map<String, String>): Response<BasicResponse>
+    @DELETE("partnerRent/vehicles/{id}")
+    suspend fun deleteVehicle(@Path("id") id: Int): Response<ApiEnvelope<Unit?>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/list_promote_vehicle")
-    suspend fun listPromoteVehicle(@FieldMap param: Map<String, String>): Response<PartnerListPromoteVehicleResponse>
+    @GET("partnerRent/config")
+    suspend fun getConfig(): Response<ApiEnvelope<PartnerRentConfigData>>
 
-    @POST("partnerRent/get_input_promote_config")
-    suspend fun getPromoteInputConfig(): Response<InputPromoteRentVehicleConfigResponse>
+    @PUT("partnerRent/config")
+    suspend fun updateConfig(@Body request: UpdatePartnerRentConfigRequest): Response<ApiEnvelope<Unit?>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/post_promote")
-    suspend fun postPromote(@FieldMap form: Map<String, String>): Response<BasicResponse>
+    @GET("partnerRent/bookings")
+    suspend fun listBookings(
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 10,
+        @Query("status") status: Int? = null
+    ): Response<ApiEnvelope<BookingListData>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/cancel_promote")
-    suspend fun cancelPromote(@Field("id") id: Int): Response<BasicResponse>
+    @GET("partnerRent/bookings/{id}")
+    suspend fun getBookingDetail(@Path("id") id: Int): Response<ApiEnvelope<BookingDetailData>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/list_transaction")
-    suspend fun listTransaction(@FieldMap form: Map<String, String>): Response<ListRentVehicleTransactionResponse>
+    /** Was `cancelTransaction`. */
+    @DELETE("partnerRent/bookings/{id}")
+    suspend fun cancelBooking(@Path("id") id: Int): Response<ApiEnvelope<Unit?>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/transaction_detail")
-    suspend fun transactionDetail(@Field("id") id: Int): Response<RentVehicleDetailResponse>
+    /** Was `updateStatusTransaction`. */
+    @PUT("partnerRent/booking_status/{id}")
+    suspend fun updateBookingStatus(@Path("id") id: Int, @Body request: UpdateBookingStatusRequest): Response<ApiEnvelope<Unit?>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/cancel_transaction")
-    suspend fun cancelTransaction(@Field("id") id: Int): Response<BasicResponse>
+    /** Was `doneTransaction` -- settles payment, awards points, triggers reward/commission processing. */
+    @PUT("partnerRent/booking_done/{id}")
+    suspend fun completeBooking(@Path("id") id: Int): Response<ApiEnvelope<Unit?>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/update_status_transaction")
-    suspend fun updateStatusTransaction(@FieldMap form: Map<String, String>): Response<BasicResponse>
+    /** Was `postReview`. */
+    @POST("partnerRent/booking_review/{id}")
+    suspend fun postReview(@Path("id") id: Int, @Body request: BookingReviewRequest): Response<ApiEnvelope<Unit?>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/done_transaction")
-    suspend fun doneTransaction(@Field("id") id: Int): Response<BasicResponse>
+    @GET("partnerRent/promotions")
+    suspend fun listPromotions(
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 10
+    ): Response<ApiEnvelope<PromoteListData>>
 
-    @FormUrlEncoded
-    @POST("partnerRent/post_review")
-    suspend fun postReview(@FieldMap form: Map<String, String>): Response<BasicResponse>
+    @GET("partnerRent/promotion_input_config")
+    suspend fun getPromotionInputConfig(): Response<ApiEnvelope<PromotionInputConfigData>>
+
+    /** Was `postPromote`. */
+    @POST("partnerRent/promotions")
+    suspend fun createPromotion(@Body request: CreatePromotionRequest): Response<ApiEnvelope<PromotionCreatedData>>
+
+    /** Was `cancelPromote`. Refunds the remaining days to the caller's balance. */
+    @DELETE("partnerRent/promotions/{id}")
+    suspend fun cancelPromotion(@Path("id") id: Int): Response<ApiEnvelope<Unit?>>
 }

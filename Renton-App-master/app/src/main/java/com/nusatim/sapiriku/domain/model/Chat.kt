@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Chat(
-    val id: Int,
+    val id: Long,
     val chatroomId: Int,
     val userType: Int,
     val accountId: Int,

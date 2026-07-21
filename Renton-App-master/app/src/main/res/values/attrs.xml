@@ -14,4 +14,15 @@
             <enum name="outline" value="1" />
         </attr>
     </declare-styleable>
+
+    <declare-styleable name="SapirikuInput">
+        <attr name="android:hint" />
+        <attr name="android:text" />
+        <attr name="android:inputType" />
+        <attr name="android:enabled" />
+        <attr name="inputStartIcon" format="reference" />
+        <attr name="inputEndIcon" format="reference" />
+        <attr name="inputIsDropdown" format="boolean" />
+        <attr name="inputError" format="string" />
+    </declare-styleable>
 </resources>

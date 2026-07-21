@@ -1,41 +1,47 @@
 package com.nusatim.sapiriku.api.service
 
-import com.nusatim.sapiriku.api.model.ApplicationStatusResponse
-import com.nusatim.sapiriku.api.model.BasicListResponse
-import com.nusatim.sapiriku.api.model.CheckAgentResponse
-import com.nusatim.sapiriku.api.model.CheckEmailResponse
-import com.nusatim.sapiriku.api.model.CheckPhoneResponse
-import com.nusatim.sapiriku.api.model.GetRegenciesResponse
-import com.nusatim.sapiriku.api.model.ListVehicleResponse
+import com.nusatim.sapiriku.api.model.ApiEnvelope
+import com.nusatim.sapiriku.api.model.ApplicationStatusData
+import com.nusatim.sapiriku.api.model.AvailabilityData
+import com.nusatim.sapiriku.api.model.CheckAgentData
+import com.nusatim.sapiriku.api.model.RegenciesData
 import retrofit2.Response
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.POST
+import retrofit2.http.GET
+import retrofit2.http.Query
 
+/** Maps to RentonBachkEnd-main/application/modules/api/controllers/Basic.php -- public, no `key` header required. */
 interface BasicService {
 
-    @POST("basic/application_status")
-    suspend fun applicationStatus(): Response<ApplicationStatusResponse>
+    @GET("basic/application_status")
+    suspend fun applicationStatus(): Response<ApiEnvelope<ApplicationStatusData>>
 
-    @FormUrlEncoded
-    @POST("basic/check_email")
-    suspend fun checkEmail(@Field("email") email: String): Response<CheckEmailResponse>
+    /** @param email full email to check */
+    @GET("basic/check_email")
+    suspend fun checkEmail(@Query("email") email: String): Response<ApiEnvelope<AvailabilityData>>
 
-    @FormUrlEncoded
-    @POST("basic/check_agent")
-    suspend fun checkAgent(@Field("id") id: String): Response<CheckAgentResponse>
+    /** @param phone full phone number to check */
+    @GET("basic/check_phone")
+    suspend fun checkPhone(@Query("phone") phone: String): Response<ApiEnvelope<AvailabilityData>>
 
-    @FormUrlEncoded
-    @POST("basic/check_phone")
-    suspend fun checkPhone(@Field("phone") phone: String): Response<CheckPhoneResponse>
+    /** @param id agent account id */
+    @GET("basic/check_agent")
+    suspend fun checkAgent(@Query("id") id: String): Response<ApiEnvelope<CheckAgentData>>
 
-    @FormUrlEncoded
-    @POST("basic/get_regencies")
-    suspend fun getRegencies(@Field("regency") regency: String): Response<GetRegenciesResponse>
+    /**
+     * Despite the query param name, this is actually a LIKE '%name%' search on the regency
+     * name (Basic_m::get_regencies) -- not a province filter. Kept as `province` here because
+     * that's the literal query key the backend controller reads.
+     */
+    @GET("basic/regencies")
+    suspend fun getRegencies(@Query("province") province: String): Response<ApiEnvelope<RegenciesData>>
 
-    @POST("basic/get_active_regencies")
-    suspend fun getActiveRegencies(): Response<BasicListResponse>
+    /** Only regencies where an active (status=1) vehicle listing exists -- for search filter dropdowns. */
+    @GET("basic/active_regencies")
+    suspend fun getActiveRegencies(): Response<ApiEnvelope<RegenciesData>>
 
-    @POST("basic/get_recomendation_rentvehicle")
-    suspend fun getRecomendationRentVehicle(): Response<ListVehicleResponse>
+    // NOTE: the old `getRecomendationRentVehicle()` (POST basic/get_recomendation_rentvehicle)
+    // has no equivalent in the new backend -- Basic.php doesn't expose a recommendation
+    // endpoint. Promoted/recommended vehicles are now folded into
+    // RentVehicleService.listVehicle() (page 1 auto-merges promoted listings). Removed here;
+    // update call sites to use RentVehicleService instead.
 }

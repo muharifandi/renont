@@ -1,30 +1,41 @@
 package com.nusatim.sapiriku.api.service
 
-import com.nusatim.sapiriku.api.model.BasicResponse
-import com.nusatim.sapiriku.api.model.ChatResponse
-import com.nusatim.sapiriku.api.model.ListChatResponse
-import com.nusatim.sapiriku.api.model.ListChatroomResponse
+import com.nusatim.sapiriku.api.model.ApiEnvelope
+import com.nusatim.sapiriku.api.model.ChatMessagesData
+import com.nusatim.sapiriku.api.model.ChatroomListData
+import com.nusatim.sapiriku.api.model.ReadMessagesRequest
+import com.nusatim.sapiriku.api.model.SendChatMessageData
+import com.nusatim.sapiriku.api.model.SendChatMessageRequest
 import retrofit2.Response
-import retrofit2.http.Field
-import retrofit2.http.FieldMap
-import retrofit2.http.FormUrlEncoded
+import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Query
 
+/** Maps to RentonBachkEnd-main/application/modules/api/controllers/Chat.php -- requires `key` header on all methods. */
 interface ChatService {
 
-    @FormUrlEncoded
-    @POST("chat/list_chat")
-    suspend fun listChat(@FieldMap form: Map<String, String>): Response<ListChatResponse>
+    /** @param isPartner 0 = viewing as customer, 1 = viewing as partner */
+    @GET("chat/chatrooms")
+    suspend fun getChatrooms(@Query("is_partner") isPartner: Int): Response<ApiEnvelope<ChatroomListData>>
 
-    @FormUrlEncoded
-    @POST("chat/send_message")
-    suspend fun sendMessage(@FieldMap form: Map<String, String>): Response<ChatResponse>
+    /**
+     * Either pass [chatroomId] (existing room), or both [partnerAccountId] and
+     * [customerAccountId] (server creates/finds the room for you).
+     */
+    @GET("chat/messages")
+    suspend fun getMessages(
+        @Query("chatroom_id") chatroomId: Int? = null,
+        @Query("partner_account_id") partnerAccountId: Int? = null,
+        @Query("customer_account_id") customerAccountId: Int? = null,
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 20
+    ): Response<ApiEnvelope<ChatMessagesData>>
 
-    @FormUrlEncoded
-    @POST("chat/list_chatroom")
-    suspend fun listChatroom(@FieldMap form: Map<String, String>): Response<ListChatroomResponse>
+    @POST("chat/messages")
+    suspend fun sendMessage(@Body request: SendChatMessageRequest): Response<ApiEnvelope<SendChatMessageData>>
 
-    @FormUrlEncoded
-    @POST("chat/read_message")
-    suspend fun setMessageRead(@Field("chatroom_id") chatroomId: Int): Response<BasicResponse>
+    @PUT("chat/messages_read")
+    suspend fun markMessagesRead(@Body request: ReadMessagesRequest): Response<ApiEnvelope<Unit?>>
 }

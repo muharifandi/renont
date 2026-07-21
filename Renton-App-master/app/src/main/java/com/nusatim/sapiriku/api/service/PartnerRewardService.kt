@@ -1,23 +1,25 @@
 package com.nusatim.sapiriku.api.service
 
-import com.nusatim.sapiriku.api.model.BasicListResponse
-import com.nusatim.sapiriku.api.model.BasicResponse
-import com.nusatim.sapiriku.api.model.PartnerRewardDetailResponse
+import com.nusatim.sapiriku.api.model.ApiEnvelope
+import com.nusatim.sapiriku.api.model.ClaimRewardRequest
+import com.nusatim.sapiriku.api.model.PartnerRewardDetailData
+import com.nusatim.sapiriku.api.model.RewardScopesData
 import retrofit2.Response
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
+import retrofit2.http.Body
+import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Query
 
+/** Maps to RentonBachkEnd-main/application/modules/api/controllers/PartnerReward.php -- requires `key` header (except scopes). */
 interface PartnerRewardService {
 
-    @FormUrlEncoded
-    @POST("partnerReward/detail")
-    suspend fun detail(@Field("reward_scope") rewardScope: Int): Response<PartnerRewardDetailResponse>
+    @GET("partnerReward/scopes")
+    suspend fun listScopes(): Response<ApiEnvelope<RewardScopesData>>
 
-    @POST("partnerReward/list_scope")
-    suspend fun listScope(): Response<BasicListResponse>
+    /** [rewardScope] optional -- server defaults to the first available scope if omitted. */
+    @GET("partnerReward/detail")
+    suspend fun detail(@Query("reward_scope") rewardScope: Int? = null): Response<ApiEnvelope<PartnerRewardDetailData>>
 
-    @FormUrlEncoded
-    @POST("partnerReward/claim_item_reward")
-    suspend fun claimReward(@Field("reward_id") rewardId: Int): Response<BasicResponse>
+    @POST("partnerReward/claims")
+    suspend fun claimReward(@Body request: ClaimRewardRequest): Response<ApiEnvelope<Unit?>>
 }

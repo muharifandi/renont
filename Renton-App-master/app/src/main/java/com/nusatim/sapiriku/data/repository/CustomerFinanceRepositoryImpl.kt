@@ -1,6 +1,11 @@
 package com.nusatim.sapiriku.data.repository
 
 import android.content.Context
+import com.nusatim.sapiriku.api.model.CreateTopupRequest
+import com.nusatim.sapiriku.api.model.CreateWithdrawRequest
+import com.nusatim.sapiriku.api.model.ExchangePointRequest
+import com.nusatim.sapiriku.api.model.SaveBankRequest
+import com.nusatim.sapiriku.api.model.UpdatePushTokenRequest
 import com.nusatim.sapiriku.api.service.CustomerService
 import com.nusatim.sapiriku.core.common.Resource
 import com.nusatim.sapiriku.core.util.FileUtils
@@ -21,22 +26,22 @@ class CustomerFinanceRepositoryImpl @Inject constructor(
 
     override fun getBalance(): Flow<Resource<Double>> {
         return safeApiCall(
-            apiCall = { customerService.balance() },
-            map = { it.balance }
+            apiCall = { customerService.getBalance() },
+            map = { it.data?.balance ?: 0.0 }
         )
     }
 
     override fun getPoint(): Flow<Resource<Double>> {
         return safeApiCall(
-            apiCall = { customerService.point() },
-            map = { it.point.toDouble() }
+            apiCall = { customerService.getPoint() },
+            map = { it.data?.point?.toDouble() ?: 0.0 }
         )
     }
 
     override suspend fun listTransactionPoints(page: Int, pageSize: Int): Result<List<TransactionPoint>> {
         return try {
-            val response = customerService.listTransactionPoint(mapOf("page" to page.toString(), "limit" to pageSize.toString()))
-            Result.success(response.body()?.transactionPoints ?: emptyList())
+            val response = customerService.listPointTransactions(page, pageSize)
+            Result.success(response.body()?.data?.transactionPoint?.map { it.toTransactionPoint() } ?: emptyList())
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -44,49 +49,49 @@ class CustomerFinanceRepositoryImpl @Inject constructor(
 
     override fun getExchangePointConfig(): Flow<Resource<ExchangePointConfig>> {
         return safeApiCall(
-            apiCall = { customerService.getExchangePointConfig() },
-            map = { it.toExchangePointConfig() }
+            apiCall = { customerService.getPointExchangeConfig() },
+            map = { it.data?.toExchangePointConfig() ?: throw Exception("Empty data") }
         )
     }
 
     override fun postExchangePoint(point: String): Flow<Resource<OperationResult>> {
         return safeApiCall(
-            apiCall = { customerService.postExchangePoint(mapOf("point" to point)) },
+            apiCall = { customerService.exchangePoint(ExchangePointRequest(point.toInt())) },
             map = { it.toOperationResult() }
         )
     }
 
     override fun listBanks(): Flow<Resource<List<CustomerBank>>> {
         return safeApiCall(
-            apiCall = { customerService.banks() },
-            map = { it.customerBanks }
+            apiCall = { customerService.getBanks() },
+            map = { it.data?.banks?.map { it.toCustomerBankDomain() } ?: emptyList() }
         )
     }
 
     override fun getBankDetail(id: Int): Flow<Resource<CustomerBank?>> {
         return safeApiCall(
-            apiCall = { customerService.bankDetail(id) },
-            map = { it.bank }
+            apiCall = { customerService.getBankDetail(id) },
+            map = { it.data?.bank?.toCustomerBankDomain() }
         )
     }
 
     override fun getBankInputConfig(): Flow<Resource<List<Bank>>> {
         return safeApiCall(
-            apiCall = { customerService.getBankInputConfig() },
-            map = { it.banks }
+            apiCall = { customerService.getBankDetail(0) }, // Passing 0 or omitting id gets master list
+            map = { it.data?.bankOptions?.map { it.toBank() } ?: emptyList() }
         )
     }
 
     override fun postBank(command: AddBankCommand): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { 
-                val form = mutableMapOf(
-                    "bank_id" to command.bankId.toString(),
-                    "name" to command.accountName,
-                    "bank_number" to command.accountNumber
+                val request = SaveBankRequest(
+                    id = command.id,
+                    bankId = command.bankId,
+                    name = command.accountName,
+                    bankNumber = command.accountNumber
                 )
-                command.id?.let { form["id"] = it.toString() }
-                customerService.postBank(form)
+                customerService.saveBank(request)
             },
             map = { it.toOperationResult() }
         )
@@ -101,8 +106,8 @@ class CustomerFinanceRepositoryImpl @Inject constructor(
 
     override suspend fun listTopups(page: Int, pageSize: Int): Result<List<Topup>> {
         return try {
-            val response = customerService.listTopup(mapOf("page" to page.toString(), "limit" to pageSize.toString()))
-            Result.success(response.body()?.topups ?: emptyList())
+            val response = customerService.listTopups(page, pageSize)
+            Result.success(response.body()?.data?.topups?.map { it.toTopup() } ?: emptyList())
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -110,31 +115,36 @@ class CustomerFinanceRepositoryImpl @Inject constructor(
 
     override fun getTopupDetail(topupId: Int): Flow<Resource<Topup?>> {
         return safeApiCall(
-            apiCall = { customerService.topupDetail(topupId) },
-            map = { it.detail }
+            apiCall = { customerService.getTopupDetail(topupId) },
+            map = { it.data?.detail?.toTopup() }
         )
     }
 
     override fun getRequestTopupConfig(): Flow<Resource<RequestTopupConfig>> {
         return safeApiCall(
-            apiCall = { customerService.getRequestTopupConfig() },
-            map = { it.toRequestTopupConfig() }
+            apiCall = { customerService.getTopupConfig() },
+            map = { it.data?.toRequestTopupConfig() ?: throw Exception("Empty data") }
         )
     }
 
     override fun postRequestTopup(command: TopupRequestCommand): Flow<Resource<TopupRequestResult>> {
         return safeApiCall(
-            apiCall = { customerService.postRequestTopup(mapOf("company_bank_id" to command.companyBankId.toString(), "value" to command.amount)) },
-            map = { it.toTopupRequestResult() }
+            apiCall = { customerService.createTopup(CreateTopupRequest(command.amount.toDouble(), command.companyBankId)) },
+            map = { response ->
+                TopupRequestResult(
+                    success = response.status,
+                    message = response.message,
+                    topupId = response.data?.id ?: 0
+                )
+            }
         )
     }
 
     override fun postVerificationTopup(topupId: Int, command: UploadImageCommand): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = {
-                val form = mapOf("topup_id" to FileUtils.createPartFromString(topupId.toString()))
                 val image = FileUtils.prepareFileImagePart(context, "img_proof", command.imagePath)
-                customerService.verificationTopup(form, image)
+                customerService.uploadTopupProof(topupId, image)
             },
             map = { it.toOperationResult() }
         )
@@ -142,8 +152,8 @@ class CustomerFinanceRepositoryImpl @Inject constructor(
 
     override suspend fun listWithdraws(page: Int, pageSize: Int): Result<List<Withdraw>> {
         return try {
-            val response = customerService.listWithdraw(mapOf("page" to page.toString(), "limit" to pageSize.toString()))
-            Result.success(response.body()?.withdraws ?: emptyList())
+            val response = customerService.listWithdraws(page, pageSize)
+            Result.success(response.body()?.data?.withdraws?.map { it.toWithdraw() } ?: emptyList())
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -151,14 +161,14 @@ class CustomerFinanceRepositoryImpl @Inject constructor(
 
     override fun getRequestWithdrawConfig(): Flow<Resource<RequestWithdrawConfig>> {
         return safeApiCall(
-            apiCall = { customerService.getRequestWithdrawConfig() },
-            map = { it.toRequestWithdrawConfig() }
+            apiCall = { customerService.getWithdrawConfig() },
+            map = { it.data?.toRequestWithdrawConfig() ?: throw Exception("Empty data") }
         )
     }
 
     override fun postRequestWithdraw(command: WithdrawRequestCommand): Flow<Resource<OperationResult>> {
         return safeApiCall(
-            apiCall = { customerService.postRequestWithdraw(mapOf("account_bank_id" to command.accountBankId.toString(), "value" to command.amount)) },
+            apiCall = { customerService.createWithdraw(CreateWithdrawRequest(command.amount.toDouble(), command.accountBankId)) },
             map = { it.toOperationResult() }
         )
     }

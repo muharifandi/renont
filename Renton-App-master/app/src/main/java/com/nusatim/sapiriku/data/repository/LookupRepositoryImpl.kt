@@ -17,42 +17,42 @@ class LookupRepositoryImpl @Inject constructor(
     override fun getRegencies(query: String): Flow<Resource<List<Regencies>>> {
         return safeApiCall(
             apiCall = { basicService.getRegencies(query) },
-            map = { it.regencies }
+            map = { response -> response.data?.regencies?.map { it.toRegencies() } ?: emptyList() }
         )
     }
 
     override fun getActiveRegencies(): Flow<Resource<List<BasicData>>> {
         return safeApiCall(
             apiCall = { basicService.getActiveRegencies() },
-            map = { it.data }
+            map = { response -> response.data?.regencies?.map { it.toBasicData() } ?: emptyList() }
         )
     }
 
     override fun checkEmail(email: String): Flow<Resource<ValidationResult>> {
         return safeApiCall(
             apiCall = { basicService.checkEmail(email) },
-            map = { it.toValidationResult() }
+            map = { response -> response.data?.toValidationResult(response.message) ?: throw Exception("Empty data") }
         )
     }
 
     override fun checkPhone(phone: String): Flow<Resource<ValidationResult>> {
         return safeApiCall(
             apiCall = { basicService.checkPhone(phone) },
-            map = { it.toValidationResult() }
+            map = { response -> response.data?.toValidationResult(response.message) ?: throw Exception("Empty data") }
         )
     }
 
     override fun checkAgent(agentId: String): Flow<Resource<ValidationResult>> {
         return safeApiCall(
             apiCall = { basicService.checkAgent(agentId) },
-            map = { it.toValidationResult() }
+            map = { response -> response.data?.toValidationResult() ?: throw Exception("Empty data") }
         )
     }
 
     override fun checkApplicationStatus(): Flow<Resource<ApplicationStatus>> {
         return safeApiCall(
             apiCall = { basicService.applicationStatus() },
-            map = { it.toApplicationStatus() }
+            map = { response -> response.data?.toApplicationStatus() ?: throw Exception("Empty data") }
         )
     }
 }

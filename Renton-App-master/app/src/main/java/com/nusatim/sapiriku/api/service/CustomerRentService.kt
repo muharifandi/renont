@@ -1,33 +1,41 @@
 package com.nusatim.sapiriku.api.service
 
-import com.nusatim.sapiriku.api.model.BasicResponse
-import com.nusatim.sapiriku.api.model.ListRentVehicleTransactionResponse
-import com.nusatim.sapiriku.api.model.RentVehicleDetailResponse
+import com.nusatim.sapiriku.api.model.ApiEnvelope
+import com.nusatim.sapiriku.api.model.BookingDetailData
+import com.nusatim.sapiriku.api.model.BookingListData
+import com.nusatim.sapiriku.api.model.BookingReviewRequest
+import com.nusatim.sapiriku.api.model.UpdateBookingStatusRequest
 import retrofit2.Response
-import retrofit2.http.Field
-import retrofit2.http.FieldMap
-import retrofit2.http.FormUrlEncoded
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
+import retrofit2.http.Query
 
+/** Maps to RentonBachkEnd-main/application/modules/api/controllers/CustomerRent.php -- requires `key` header (customer role). */
 interface CustomerRentService {
 
-    @FormUrlEncoded
-    @POST("customerRent/list_transaction")
-    suspend fun listTransaction(@FieldMap form: Map<String, String>): Response<ListRentVehicleTransactionResponse>
+    @GET("customerRent/bookings")
+    suspend fun listBookings(
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 10,
+        @Query("status") status: Int? = null
+    ): Response<ApiEnvelope<BookingListData>>
 
-    @FormUrlEncoded
-    @POST("customerRent/transaction_detail")
-    suspend fun transactionDetail(@Field("id") id: Int): Response<RentVehicleDetailResponse>
+    @GET("customerRent/bookings/{id}")
+    suspend fun getBookingDetail(@Path("id") id: Int): Response<ApiEnvelope<BookingDetailData>>
 
-    @FormUrlEncoded
-    @POST("customerRent/cancel_transaction")
-    suspend fun cancelTransaction(@Field("id") id: Int): Response<BasicResponse>
+    /** Was `cancelTransaction`. */
+    @DELETE("customerRent/bookings/{id}")
+    suspend fun cancelBooking(@Path("id") id: Int): Response<ApiEnvelope<Unit?>>
 
-    @FormUrlEncoded
-    @POST("customerRent/update_status_transaction")
-    suspend fun updateStatusTransaction(@FieldMap form: Map<String, String>): Response<BasicResponse>
+    /** Was `updateStatusTransaction`. */
+    @PUT("customerRent/booking_status/{id}")
+    suspend fun updateBookingStatus(@Path("id") id: Int, @Body request: UpdateBookingStatusRequest): Response<ApiEnvelope<Unit?>>
 
-    @FormUrlEncoded
-    @POST("customerRent/post_review")
-    suspend fun postReview(@FieldMap form: Map<String, String>): Response<BasicResponse>
+    /** Was `postReview`. */
+    @POST("customerRent/booking_review/{id}")
+    suspend fun postReview(@Path("id") id: Int, @Body request: BookingReviewRequest): Response<ApiEnvelope<Unit?>>
 }

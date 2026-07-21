@@ -10,9 +10,7 @@
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">false</item>
 
-        <!--<item name="android:textViewStyle">@style/RobotoTextViewStyle</item>
-        <item name="android:buttonStyle">@style/RobotoButtonStyle</item>-->
-       <!-- <item name="materialButtonStyle">@style/Widget.MaterialComponents.Button.TextButton</item>-->
+        <item name="android:fontFamily">sans-serif</item> <!-- Roboto is default sans-serif on Android -->
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -27,23 +25,146 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="actionBarTheme">@style/AppTheme.ActionBar</item>
-       <!-- <item name="materialButtonStyle">@style/AppTheme.ButtonGreen</item>-->
-
-
         <item name="android:elevation">0dp</item>
     </style>
 
     <style name="AppTheme.ActionBar" parent="Theme.MaterialComponents.Light">
         <item name="colorPrimary">@color/white</item>
-
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar">
-
         <item name="colorPrimary">@color/actionBarColor</item>
     </style>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
 
+    <!-- ================================================== -->
+    <!-- TYPOGRAPHY SYSTEM (ROBOTO BASED)                   -->
+    <!-- ================================================== -->
+
+    <style name="AppText" parent="android:Widget.TextView">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+
+    <!-- Base Scale Templates -->
+    <style name="AppText.Regular"><item name="android:textStyle">normal</item></style>
+    <style name="AppText.Medium"><item name="android:fontFamily">sans-serif-medium</item></style>
+    <style name="AppText.Bold"><item name="android:textStyle">bold</item></style>
+    <style name="AppText.Italic"><item name="android:textStyle">italic</item></style>
+    <style name="AppText.BoldItalic"><item name="android:textStyle">bold|italic</item></style>
+
+    <!-- Specific Scales -->
+    <!-- 2sp -->
+    <style name="AppText.R2" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_2</item></style>
+    <style name="AppText.M2" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_2</item></style>
+    <style name="AppText.B2" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_2</item></style>
+    <style name="AppText.I2" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_2</item></style>
+    <style name="AppText.BI2" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_2</item></style>
+
+    <!-- 4sp -->
+    <style name="AppText.R4" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_4</item></style>
+    <style name="AppText.M4" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_4</item></style>
+    <style name="AppText.B4" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_4</item></style>
+    <style name="AppText.I4" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_4</item></style>
+    <style name="AppText.BI4" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_4</item></style>
+
+    <!-- 8sp -->
+    <style name="AppText.R8" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_8</item></style>
+    <style name="AppText.M8" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_8</item></style>
+    <style name="AppText.B8" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_8</item></style>
+    <style name="AppText.I8" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_8</item></style>
+    <style name="AppText.BI8" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_8</item></style>
+
+    <!-- 10sp -->
+    <style name="AppText.R10" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_10</item></style>
+    <style name="AppText.M10" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_10</item></style>
+    <style name="AppText.B10" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_10</item></style>
+    <style name="AppText.I10" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_10</item></style>
+    <style name="AppText.BI10" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_10</item></style>
+
+    <!-- 12sp -->
+    <style name="AppText.R12" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_12</item></style>
+    <style name="AppText.M12" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_12</item></style>
+    <style name="AppText.B12" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_12</item></style>
+    <style name="AppText.I12" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_12</item></style>
+    <style name="AppText.BI12" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_12</item></style>
+
+    <!-- 14sp -->
+    <style name="AppText.R14" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_14</item></style>
+    <style name="AppText.M14" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_14</item></style>
+    <style name="AppText.B14" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_14</item></style>
+    <style name="AppText.I14" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_14</item></style>
+    <style name="AppText.BI14" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_14</item></style>
+
+    <!-- 16sp -->
+    <style name="AppText.R16" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_16</item></style>
+    <style name="AppText.M16" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_16</item></style>
+    <style name="AppText.B16" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_16</item></style>
+    <style name="AppText.I16" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_16</item></style>
+    <style name="AppText.BI16" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_16</item></style>
+
+    <!-- 18sp -->
+    <style name="AppText.R18" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_18</item></style>
+    <style name="AppText.M18" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_18</item></style>
+    <style name="AppText.B18" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_18</item></style>
+    <style name="AppText.I18" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_18</item></style>
+    <style name="AppText.BI18" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_18</item></style>
+
+    <!-- 20sp -->
+    <style name="AppText.R20" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_20</item></style>
+    <style name="AppText.M20" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_20</item></style>
+    <style name="AppText.B20" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_20</item></style>
+    <style name="AppText.I20" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_20</item></style>
+    <style name="AppText.BI20" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_20</item></style>
+
+    <!-- 22sp -->
+    <style name="AppText.R22" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_22</item></style>
+    <style name="AppText.M22" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_22</item></style>
+    <style name="AppText.B22" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_22</item></style>
+    <style name="AppText.I22" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_22</item></style>
+    <style name="AppText.BI22" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_22</item></style>
+
+    <!-- 24sp -->
+    <style name="AppText.R24" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_24</item></style>
+    <style name="AppText.M24" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_24</item></style>
+    <style name="AppText.B24" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_24</item></style>
+    <style name="AppText.I24" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_24</item></style>
+    <style name="AppText.BI24" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_24</item></style>
+
+    <!-- 26sp -->
+    <style name="AppText.R26" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_26</item></style>
+    <style name="AppText.M26" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_26</item></style>
+    <style name="AppText.B26" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_26</item></style>
+    <style name="AppText.I26" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_26</item></style>
+    <style name="AppText.BI26" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_26</item></style>
+
+    <!-- 28sp -->
+    <style name="AppText.R28" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_28</item></style>
+    <style name="AppText.M28" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_28</item></style>
+    <style name="AppText.B28" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_28</item></style>
+    <style name="AppText.I28" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_28</item></style>
+    <style name="AppText.BI28" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_28</item></style>
+
+    <!-- 30sp -->
+    <style name="AppText.R30" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_30</item></style>
+    <style name="AppText.M30" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_30</item></style>
+    <style name="AppText.B30" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_30</item></style>
+    <style name="AppText.I30" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_30</item></style>
+    <style name="AppText.BI30" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_30</item></style>
+
+    <!-- 32sp -->
+    <style name="AppText.R32" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_32</item></style>
+    <style name="AppText.M32" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_32</item></style>
+    <style name="AppText.B32" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_32</item></style>
+    <style name="AppText.I32" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_32</item></style>
+    <style name="AppText.BI32" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_32</item></style>
+
+    <!-- 34sp -->
+    <style name="AppText.R34" parent="AppText.Regular"><item name="android:textSize">@dimen/sp_34</item></style>
+    <style name="AppText.M34" parent="AppText.Medium"><item name="android:textSize">@dimen/sp_34</item></style>
+    <style name="AppText.B34" parent="AppText.Bold"><item name="android:textSize">@dimen/sp_34</item></style>
+    <style name="AppText.I34" parent="AppText.Italic"><item name="android:textSize">@dimen/sp_34</item></style>
+    <style name="AppText.BI34" parent="AppText.BoldItalic"><item name="android:textSize">@dimen/sp_34</item></style>
 
 </resources>

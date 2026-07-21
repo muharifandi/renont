@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.os.IBinder
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.nusatim.sapiriku.api.model.UpdateLocationRequest
 import com.nusatim.sapiriku.api.service.CustomerService
 import com.nusatim.sapiriku.domain.repository.UserRepository
 import dagger.hilt.android.AndroidEntryPoint
@@ -104,11 +105,7 @@ class UpdateLocationByGpsService : Service() {
     private fun updateUserLocation(location: Location) {
         serviceScope.launch {
             userRepository.getUser().first() ?: return@launch
-            val form = mapOf(
-                "latitude" to location.latitude.toString(),
-                "longitude" to location.longitude.toString()
-            )
-            runCatching { customerService.updateCustomerLocation(form) }
+            runCatching { customerService.updateLocation(UpdateLocationRequest(location.latitude, location.longitude)) }
                 .onFailure { Timber.w(it, "failed to update user location") }
         }
     }

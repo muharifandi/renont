@@ -1,12 +1,12 @@
 <?php
 
 defined('BASEPATH') OR exit('No direct script access allowed');
-require APPPATH.'libraries/REST_Base_Controller.php';
+require APPPATH.'libraries/Api_Base_Controller.php';
 
 /**
  * Public utility endpoints (no auth) used before/during registration.
  */
-class Basic extends REST_Base_Controller
+class Basic extends Api_Base_Controller
 {
 	public function __construct()
 	{

@@ -1,25 +1,30 @@
 package com.nusatim.sapiriku.api.service
 
-import com.nusatim.sapiriku.api.model.ListNewsPreviewResponse
-import com.nusatim.sapiriku.api.model.ListNewsResponse
-import com.nusatim.sapiriku.api.model.NewsDetailResponse
+import com.nusatim.sapiriku.api.model.ApiEnvelope
+import com.nusatim.sapiriku.api.model.NewsDetailData
+import com.nusatim.sapiriku.api.model.NewsListData
 import retrofit2.Response
-import retrofit2.http.Field
-import retrofit2.http.FieldMap
-import retrofit2.http.FormUrlEncoded
-import retrofit2.http.POST
+import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Query
 
+/** Maps to RentonBachkEnd-main/application/modules/api/controllers/News.php */
 interface NewsService {
 
-    @FormUrlEncoded
-    @POST("news/list")
-    suspend fun list(@FieldMap form: Map<String, String>): Response<ListNewsResponse>
+    /** Requires `key` header (personalized to whether the account is a valid partner). */
+    @GET("news")
+    suspend fun list(
+        @Query("page") page: Int = 1,
+        @Query("limit") limit: Int = 10
+    ): Response<ApiEnvelope<NewsListData>>
 
-    @FormUrlEncoded
-    @POST("news/detail")
-    suspend fun detail(@Field("id") id: Int): Response<NewsDetailResponse>
+    /** Public, no `key` header required. */
+    @GET("news/{id}")
+    suspend fun detail(@Path("id") id: Int): Response<ApiEnvelope<NewsDetailData>>
 
-    @FormUrlEncoded
-    @POST("news/list_preview")
-    suspend fun listPreview(@Field("id") id: Int): Response<ListNewsPreviewResponse>
+    // NOTE: the old `listPreview()` (POST news/list_preview -> News_m::list_preview()) has
+    // no route in the new News.php controller -- the model method still exists but nothing
+    // calls it. If the app still needs a lightweight preview list (e.g. home screen
+    // carousel), that endpoint needs to be added back to News.php; flagging rather than
+    // guessing at a replacement.
 }

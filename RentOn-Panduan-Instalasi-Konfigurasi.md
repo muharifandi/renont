@@ -145,6 +145,26 @@ curl https://domain-anda/admin/dashboard/summary?start=2026-07-01&end=2026-07-21
   -H "key: 8f2a1c9d..."
 ```
 
+### 4.2b Header wajib tambahan khusus `api/*` (mobile app) — `X-App-Secret`
+Sejak 22 Juli 2026, **seluruh endpoint di modul `api`** (yang dipanggil aplikasi Android — bukan `admin`/`agent`/`auth`) mewajibkan satu header tambahan di luar `key`:
+```
+X-App-Secret: <nilai dari application/config/{env}/app_secret.php>
+```
+Tanpa header ini, semua request ke `api/*` akan ditolak `403 Forbidden` — **termasuk endpoint publik** seperti `login`/`register`/browsing kendaraan, karena pengecekan ini terjadi sebelum controller method jalan sama sekali.
+
+- Nilai secretnya ada di `application/config/{development,testing,production}/app_secret.php` (beda per environment, di-generate acak 32-byte saat pembuatan — **ganti dengan nilai Anda sendiri sebelum deploy production**, jangan pakai nilai bawaan dari repo).
+- Ini proteksi level **aplikasi**, terpisah dari `key` (yang levelnya per-akun). Tujuannya menyaring tool generik (curl/Postman/scanner otomatis) yang mencoba memanggil API langsung tanpa lewat app.
+- ⚠️ **Bukan proteksi anti-reverse-engineering** — secret yang ditanam di APK tetap bisa diekstrak lewat decompile. Kalau butuh verifikasi app+device asli yang sesungguhnya, perlu Google Play Integrity API (belum diimplementasikan).
+- **Aplikasi Android wajib mengirim header ini di setiap request** ke `api/*` — kalau belum ditambahkan di sisi app, semua panggilan API dari app akan gagal 403 sampai ditambahkan.
+
+Contoh:
+```bash
+curl -X POST https://domain-anda/api/customer/login \
+  -H "Content-Type: application/json" \
+  -H "X-App-Secret: <secret_environment_anda>" \
+  -d '{"email":"...","password":"..."}'
+```
+
 ### 4.3 Struktur URL
 ```
 {domain}/api/{controller}/{aksi}       ← mobile app (customer & partner)

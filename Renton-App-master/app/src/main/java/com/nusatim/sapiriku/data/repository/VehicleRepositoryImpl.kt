@@ -1,5 +1,8 @@
 package com.nusatim.sapiriku.data.repository
 
+import com.nusatim.sapiriku.api.model.CreateBookingRequest
+import com.nusatim.sapiriku.api.model.QuoteRequest
+import com.nusatim.sapiriku.api.model.VoucherCheckRequest
 import com.nusatim.sapiriku.api.service.BasicService
 import com.nusatim.sapiriku.api.service.RentVehicleService
 import com.nusatim.sapiriku.core.common.Resource
@@ -13,23 +16,43 @@ import javax.inject.Singleton
 
 @Singleton
 class VehicleRepositoryImpl @Inject constructor(
-    private val basicService: BasicService,
     private val rentVehicleService: RentVehicleService
 ) : BaseRepository(), VehicleRepository {
 
     override fun getRecommendationVehicles(): Flow<Resource<List<Vehicle>>> {
         return safeApiCall(
-            apiCall = { basicService.getRecomendationRentVehicle() },
-            map = { it.vehicles }
+            apiCall = { rentVehicleService.listVehicle(page = 1, limit = 10) },
+            map = { response -> response.data?.vehicles?.map { it.toVehicle() } ?: emptyList() }
         )
     }
 
     override suspend fun listVehicles(params: Map<String, String>): Result<VehicleSearchResult> {
         return try {
-            val response = rentVehicleService.listVehicle(params)
+            val response = rentVehicleService.listVehicle(
+                functionalType = params["functional_type"]?.toInt(),
+                startDate = params["start_date"],
+                endDate = params["end_date"],
+                page = params["page"]?.toInt() ?: 1,
+                limit = params["limit"]?.toInt() ?: 10,
+                sort = params["sort"]?.toInt(),
+                status = params["status"]?.toInt(),
+                minPassenger = params["min_passenger"]?.toInt(),
+                maxPassenger = params["max_passenger"]?.toInt(),
+                minPrice = params["min_price"]?.toDouble(),
+                maxPrice = params["max_price"]?.toDouble(),
+                functionalTypeSelected = params["vehicle_functional_type_selected"],
+                withDriver = params["with_driver"]?.toInt(),
+                regency = params["regency"]
+            )
             val body = response.body()
             if (response.isSuccessful && body != null) {
-                Result.success(body.toSearchResult())
+                Result.success(VehicleSearchResult(
+                    vehicles = body.data?.vehicles?.map { it.toVehicle() } ?: emptyList(),
+                    priceMin = body.data?.priceMin ?: 0.0,
+                    priceMax = body.data?.priceMax ?: 0.0,
+                    regencies = body.data?.regency,
+                    functionalType = body.data?.functionalType?.map { it.toBasicData() } ?: emptyList()
+                ))
             } else {
                 Result.failure(Exception(body?.message ?: "Failed to load vehicles"))
             }
@@ -41,21 +64,28 @@ class VehicleRepositoryImpl @Inject constructor(
     override fun getVehicleDetail(id: Int): Flow<Resource<VehicleDetail>> {
         return safeApiCall(
             apiCall = { rentVehicleService.getVehicleDetail(id) },
-            map = { it.toVehicleDetail() }
+            map = { response ->
+                VehicleDetail(
+                    vehicle = response.data!!.vehicle.toVehicleDomain(),
+                    vehicleBooked = emptyList(), 
+                    partner = response.data.partner?.toPartnerDetailDomain(),
+                    reviews = response.data.review.map { Review(it.id, it.name, it.imgProfile, it.comment, it.rating ?: 0, it.dateModified) },
+                    reviewTotal = response.data.reviewTotal,
+                    forceWithDriver = response.data.forceWithDriver
+                )
+            }
         )
     }
 
     override suspend fun listVehicleReviews(vehicleId: Int, page: Int, pageSize: Int): Result<ReviewSearchResult> {
         return try {
-            val param = mapOf(
-                "id" to vehicleId.toString(),
-                "page" to page.toString(),
-                "limit" to pageSize.toString()
-            )
-            val response = rentVehicleService.listVehicleReview(param)
+            val response = rentVehicleService.listVehicleReviews(vehicleId, page, pageSize)
             val body = response.body()
             if (response.isSuccessful && body != null) {
-                Result.success(ReviewSearchResult(body.reviews, body.reviewTotal))
+                Result.success(ReviewSearchResult(
+                    reviews = body.data?.review?.map { Review(it.id, it.name, it.imgProfile, it.comment, it.rating ?: 0, it.dateModified) } ?: emptyList(),
+                    reviewTotal = body.data?.reviewTotal ?: 0
+                ))
             } else {
                 Result.failure(Exception("Failed to load reviews"))
             }
@@ -67,40 +97,33 @@ class VehicleRepositoryImpl @Inject constructor(
     override fun checkVoucher(code: String, startDate: String?): Flow<Resource<Voucher>> {
         return safeApiCall(
             apiCall = { 
-                val form = mapOf("code" to code.uppercase(), "start_date" to startDate.orEmpty())
-                rentVehicleService.checkVoucherCheckout(form)
+                rentVehicleService.checkVoucher(VoucherCheckRequest(code.uppercase(), startDate))
             },
-            map = { it.toVoucher() }
+            map = { response -> response.data?.voucher?.toVoucher() ?: throw Exception("Empty data") }
         )
     }
 
     override fun getCheckoutDetail(vehicleId: Int, pricePackage: Int, startDate: String?, endDate: String?): Flow<Resource<CheckoutDetail>> {
         return safeApiCall(
             apiCall = { 
-                val form = mapOf(
-                    "vehicle_id" to vehicleId.toString(),
-                    "price_package" to pricePackage.toString(),
-                    "start_date" to startDate.orEmpty(),
-                    "end_date" to endDate.orEmpty()
-                )
-                rentVehicleService.checkoutDetail(form)
+                rentVehicleService.quote(QuoteRequest(vehicleId, pricePackage, startDate.orEmpty(), endDate.orEmpty()))
             },
-            map = { it.toCheckoutDetail() }
+            map = { response -> response.data?.toCheckoutDetail() ?: throw Exception("Empty data") }
         )
     }
 
     override fun postCheckout(command: CheckoutCommand): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { 
-                val form = mapOf(
-                    "vehicle_id" to command.vehicleId.toString(),
-                    "price_package" to command.pricePackageId.toString(),
-                    "start_date" to command.startDate,
-                    "end_date" to command.endDate,
-                    "voucher_code" to command.voucherCode.orEmpty(),
-                    "notes" to command.notes.orEmpty()
+                val request = CreateBookingRequest(
+                    itemId = command.vehicleId,
+                    pricePackage = command.pricePackageId,
+                    startDate = command.startDate,
+                    endDate = command.endDate,
+                    voucherId = null, // command.voucherId not in domain CheckoutCommand?
+                    description = command.notes
                 )
-                rentVehicleService.postCheckout(form)
+                rentVehicleService.createBooking(request)
             },
             map = { it.toOperationResult() }
         )

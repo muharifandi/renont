@@ -1,12 +1,12 @@
 <?php
 
 defined('BASEPATH') OR exit('No direct script access allowed');
-require APPPATH.'libraries/REST_Base_Controller.php';
+require APPPATH.'libraries/Api_Base_Controller.php';
 
 /**
  * Customer account, profile, and wallet resource.
  */
-class Customer extends REST_Base_Controller
+class Customer extends Api_Base_Controller
 {
 	/**
 	 * Per-IP rate limit on login, on top of Ion Auth's own per-identity lockout
@@ -479,9 +479,16 @@ class Customer extends REST_Base_Controller
 		}
 
 		$rate = (float) $this->Basic_m->get_config_value('rate_point_to_balance');
+
+		$this->db->trans_start();
 		$this->Customer_m->exchange_point_to_balance([
 			'account_id' => $account->id, 'point_credit' => $point, 'description' => 'Penukaran Poin ke Saldo',
 		], $rate);
+		$this->db->trans_complete();
+
+		if ($this->db->trans_status() === FALSE) {
+			return $this->fail('Gagal menukar poin, silakan coba lagi', 500);
+		}
 
 		$this->ok(null, 'Berhasil menukar poin ke saldo');
 	}

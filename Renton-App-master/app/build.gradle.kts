@@ -9,13 +9,21 @@ plugins {
     id("kotlin-kapt")
 }
 
-val localProperties = Properties().apply {
-    val localPropertiesFile = rootProject.file("local.properties")
-    if (localPropertiesFile.exists()) {
-        localPropertiesFile.inputStream().use { load(it) }
+fun loadEnv(fileName: String): Properties {
+    val props = Properties()
+    val file = rootProject.file(fileName)
+    if (file.exists()) {
+        file.readLines().forEach { line ->
+            val pair = line.split("=", limit = 2)
+            if (pair.size == 2) {
+                val key = pair[0].trim()
+                val value = pair[1].trim().removeSurrounding("\"")
+                props.setProperty(key, value)
+            }
+        }
     }
+    return props
 }
-val mapsApiKey: String = localProperties.getProperty("MAPS_API_KEY") ?: "YOUR_KEY_HERE"
 
 android {
     namespace = "com.nusatim.sapiriku"
@@ -30,19 +38,17 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
-
-        resValue("string", "google_maps_key", mapsApiKey)
     }
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
             isMinifyEnabled = false
             isDebuggable = true
         }
         release {
             isMinifyEnabled = true
+            isDebuggable = false
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -55,12 +61,18 @@ android {
         create("development") {
             dimension = "environment"
             applicationIdSuffix = ".dev"
-            buildConfigField("String", "BASE_URL", "\"http://localhost/renton/\"")
+            val env = loadEnv("configdev.env")
+            buildConfigField("String", "BASE_URL", "\"${env.getProperty("BASE_URL") ?: ""}\"")
+            buildConfigField("String", "SECRET_KEY", "\"${env.getProperty("SECRET_KEY") ?: ""}\"")
+            resValue("string", "google_maps_key", env.getProperty("MAPS_API_KEY") ?: "")
             resValue("string", "app_name", "Sapiriku Dev")
         }
         create("production") {
             dimension = "environment"
-            buildConfigField("String", "BASE_URL", "\"http://localhost/renton/\"") // Update with real production URL later
+            val env = loadEnv("configprod.env")
+            buildConfigField("String", "BASE_URL", "\"${env.getProperty("BASE_URL") ?: ""}\"")
+            buildConfigField("String", "SECRET_KEY", "\"${env.getProperty("SECRET_KEY") ?: ""}\"")
+            resValue("string", "google_maps_key", env.getProperty("MAPS_API_KEY") ?: "")
             resValue("string", "app_name", "Sapiriku")
         }
     }

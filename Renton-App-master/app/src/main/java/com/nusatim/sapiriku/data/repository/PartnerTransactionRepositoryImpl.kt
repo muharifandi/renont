@@ -1,5 +1,7 @@
 package com.nusatim.sapiriku.data.repository
 
+import com.nusatim.sapiriku.api.model.BookingReviewRequest
+import com.nusatim.sapiriku.api.model.UpdateBookingStatusRequest
 import com.nusatim.sapiriku.api.service.PartnerRentService
 import com.nusatim.sapiriku.core.common.Resource
 import com.nusatim.sapiriku.data.mapper.*
@@ -18,8 +20,12 @@ class PartnerTransactionRepositoryImpl @Inject constructor(
 
     override suspend fun listTransactions(page: Int, pageSize: Int, status: Int): Result<List<RentVehicleTransaction>> {
         return try {
-            val response = partnerRentService.listTransaction(mapOf("page" to page.toString(), "limit" to pageSize.toString(), "status" to status.toString()))
-            Result.success(response.body()?.rentVehicleTransactions ?: emptyList())
+            val response = partnerRentService.listBookings(
+                page = page,
+                limit = pageSize,
+                status = if (status == -1) null else status
+            )
+            Result.success(response.body()?.data?.transactions?.map { it.toRentVehicleTransaction() } ?: emptyList())
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -27,35 +33,37 @@ class PartnerTransactionRepositoryImpl @Inject constructor(
 
     override fun getTransactionDetail(id: Int): Flow<Resource<RentVehicleDetail>> {
         return safeApiCall(
-            apiCall = { partnerRentService.transactionDetail(id) },
-            map = { it.toRentVehicleDetail() }
+            apiCall = { partnerRentService.getBookingDetail(id) },
+            map = { response -> response.data?.toRentVehicleDetail() ?: throw Exception("Empty data") }
         )
     }
 
     override fun updateTransactionStatus(id: Int, status: Int): Flow<Resource<OperationResult>> {
         return safeApiCall(
-            apiCall = { partnerRentService.updateStatusTransaction(mapOf("id" to id.toString(), "status" to status.toString())) },
+            apiCall = { partnerRentService.updateBookingStatus(id, UpdateBookingStatusRequest(status)) },
             map = { it.toOperationResult() }
         )
     }
 
     override fun completeTransaction(id: Int): Flow<Resource<OperationResult>> {
         return safeApiCall(
-            apiCall = { partnerRentService.doneTransaction(id) },
+            apiCall = { partnerRentService.completeBooking(id) },
             map = { it.toOperationResult() }
         )
     }
 
     override fun cancelTransaction(id: Int): Flow<Resource<OperationResult>> {
         return safeApiCall(
-            apiCall = { partnerRentService.cancelTransaction(id) },
+            apiCall = { partnerRentService.cancelBooking(id) },
             map = { it.toOperationResult() }
         )
     }
 
     override fun postReview(transactionId: Int, rating: Float, comment: String): Flow<Resource<OperationResult>> {
         return safeApiCall(
-            apiCall = { partnerRentService.postReview(mapOf("id" to transactionId.toString(), "rating" to rating.toString(), "comment" to comment)) },
+            apiCall = { 
+                partnerRentService.postReview(transactionId, BookingReviewRequest(rating.toInt(), comment))
+            },
             map = { it.toOperationResult() }
         )
     }

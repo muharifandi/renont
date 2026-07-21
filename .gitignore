@@ -5,6 +5,10 @@
 **/application/config/*/database.php
 **/application/config/*/mail.php
 **/application/config/*/fcm.php
+**/application/config/*/app_secret.php
+
+# Config tool lokal (Claude Code), bukan source proyek
+.claude/
 
 # File test yang mengekspos kemampuan kirim email (temuan audit keamanan)
 **/mailtest.php

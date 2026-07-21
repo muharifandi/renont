@@ -17,6 +17,7 @@ import coil.request.ImageRequest
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.nusatim.sapiriku.R
+import com.nusatim.sapiriku.api.model.UpdatePushTokenRequest
 import com.nusatim.sapiriku.api.service.CustomerService
 import com.nusatim.sapiriku.core.common.AppEvent
 import com.nusatim.sapiriku.core.common.AppEventBus
@@ -164,7 +165,7 @@ class FirebaseCloudMessagingService : FirebaseMessagingService() {
         super.onNewToken(token)
         serviceScope.launch {
             userRepository.getUser().first() ?: return@launch
-            runCatching { customerService.updateToken(mapOf("token" to token)) }
+            runCatching { customerService.updatePushToken(UpdatePushTokenRequest(token)) }
                 .onFailure { Timber.w(it, "failed to update FCM token") }
         }
     }

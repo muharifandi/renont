@@ -1,5 +1,6 @@
 package com.nusatim.sapiriku.data.repository
 
+import com.nusatim.sapiriku.api.model.CreatePromotionRequest
 import com.nusatim.sapiriku.api.service.PartnerRentService
 import com.nusatim.sapiriku.core.common.Resource
 import com.nusatim.sapiriku.data.mapper.*
@@ -19,12 +20,8 @@ class PartnerPromotionRepositoryImpl @Inject constructor(
 
     override suspend fun listPromoteVehicles(page: Int, pageSize: Int, sortIndex: Int, filterList: FilterList): Result<List<PromoteVehicle>> {
         return try {
-            val params = filterList.toQueryMap().toMutableMap()
-            params["page"] = page.toString()
-            params["limit"] = pageSize.toString()
-            params["sort"] = sortIndex.toString()
-            val response = partnerRentService.listPromoteVehicle(params)
-            Result.success(response.body()?.promoteVehicles ?: emptyList())
+            val response = partnerRentService.listPromotions(page, pageSize)
+            Result.success(response.body()?.data?.promotes?.map { it.toPromoteVehicle() } ?: emptyList())
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -32,19 +29,15 @@ class PartnerPromotionRepositoryImpl @Inject constructor(
 
     override fun getPromoteInputConfig(): Flow<Resource<InputPromoteRentVehicleConfig>> {
         return safeApiCall(
-            apiCall = { partnerRentService.getPromoteInputConfig() },
-            map = { it.toInputPromoteRentVehicleConfig() }
+            apiCall = { partnerRentService.getPromotionInputConfig() },
+            map = { it.data?.toInputPromoteRentVehicleConfig() ?: throw Exception("Empty data") }
         )
     }
 
     override fun postPromote(itemId: Int, startDate: String, endDate: String): Flow<Resource<OperationResult>> {
         return safeApiCall(
             apiCall = { 
-                partnerRentService.postPromote(mapOf(
-                    "item_id" to itemId.toString(),
-                    "start_date" to startDate,
-                    "end_date" to endDate
-                ))
+                partnerRentService.createPromotion(CreatePromotionRequest(itemId, startDate, endDate))
             },
             map = { it.toOperationResult() }
         )
@@ -52,7 +45,7 @@ class PartnerPromotionRepositoryImpl @Inject constructor(
 
     override fun cancelPromote(id: Int): Flow<Resource<OperationResult>> {
         return safeApiCall(
-            apiCall = { partnerRentService.cancelPromote(id) },
+            apiCall = { partnerRentService.cancelPromotion(id) },
             map = { it.toOperationResult() }
         )
     }

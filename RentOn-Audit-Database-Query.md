@@ -10,7 +10,7 @@
 
 | Severity | Temuan |
 |---|---|
-| 🔴 Kritis | Tidak ada satu pun transaksi database (`trans_start`/`trans_complete`) dipakai di seluruh alur bisnis — semua operasi finansial multi-langkah berisiko *partial failure* |
+| ✅ Diperbaiki 22 Jul 2026 | ~~Tidak ada satu pun transaksi database dipakai di seluruh alur bisnis~~ — sudah dibungkus `trans_start()`/`trans_complete()` di 9 method finansial inti. Lihat [CHANGELOG.md](CHANGELOG.md) |
 | 🟠 Tinggi | Laporan PDF (`Report_m.php`) tidak punya `LIMIT` — rentan resource exhaustion untuk rentang tanggal lebar |
 | 🟡 Sedang | N+1 query di `admin/Config.php::admins_get()` |
 | 🟡 Sedang | Beberapa kolom relasi tanpa index (sudah didokumentasikan sebelumnya, dikonfirmasi ulang masih ada) |
@@ -19,7 +19,7 @@
 
 ---
 
-## 🔴 KRITIS — Tidak Ada Transaksi Database di Seluruh Alur Bisnis
+## ✅ DIPERBAIKI 22 Juli 2026 — Transaksi Database di Seluruh Alur Bisnis
 
 **Temuan:** `grep -rl "trans_start\|trans_complete\|trans_begin"` di seluruh `application/modules`, `application/models`, `application/libraries` hanya menemukan pemakaian di **`Ion_auth_model.php`** (internal, untuk registrasi user) — **nol** pemakaian di kode bisnis manapun (booking, wallet, komisi, reward).
 
@@ -53,7 +53,7 @@ if ($this->db->trans_status() === FALSE) {
     return $this->fail('Terjadi kesalahan, transaksi dibatalkan', 500);
 }
 ```
-Ini perubahan yang cukup mekanis untuk diterapkan di ±8 method inti (checkout, cancel booking x2, booking done, topup verify, withdraw verify x2, promote cancel) — beri tahu saya kalau ingin saya kerjakan sekaligus.
+**Status: sudah diterapkan** di 9 method — `RentVehicle::bookings_post` (checkout), `PartnerRent::bookings_delete`/`booking_status_put`/`booking_done_put`/`promotions_delete`, `CustomerRent::bookings_delete`/`booking_status_put`, `admin/Customer::topup_status_put`/`withdraw_status_put`, plus `api/Customer::point_exchange_post` (ditemukan saat implementasi — pola sama, update saldo+poin & insert riwayat terpisah). Detail per-file di [CHANGELOG.md](CHANGELOG.md) entri 2026-07-22 03:41.
 
 ---
 
@@ -126,12 +126,12 @@ grep -rnE "->(where|having|or_where|or_having)\(['\"][^'\"]*['\"]\s*\.\s*\$" sel
 
 ## Rencana Tindak Lanjut
 
-| Prioritas | Tindakan | Terkait |
+| Prioritas | Tindakan | Status |
 |---|---|---|
-| 1 | Bungkus 8 alur finansial inti dengan `trans_start()`/`trans_complete()` | Temuan kritis §1 |
-| 2 | Tambah index `history_partner_reward`, `partner_rewards`, `notification`, `chat_message` | Temuan sedang |
-| 3 | Tambah cap baris/rentang tanggal di `Report_m.php` | Temuan tinggi |
-| 4 | Refactor `admins_get()` jadi 1 query JOIN | Temuan sedang (dampak kecil, prioritas rendah) |
-| 5 | Perbaiki anomali skema (`agent_withdraw_status`, FK `agent_id`/`referal_id`, PK tabel `config`) | Temuan rendah |
+| 1 | Bungkus alur finansial inti dengan `trans_start()`/`trans_complete()` | ✅ Selesai 22 Jul 2026 |
+| 2 | Tambah index `history_partner_reward`, `partner_rewards`, `notification`, `chat_message` | Belum dikerjakan |
+| 3 | Tambah cap baris/rentang tanggal di `Report_m.php` | Belum dikerjakan |
+| 4 | Refactor `admins_get()` jadi 1 query JOIN | Belum dikerjakan (dampak kecil, prioritas rendah) |
+| 5 | Perbaiki anomali skema (`agent_withdraw_status`, FK `agent_id`/`referal_id`, PK tabel `config`) | Belum dikerjakan |
 
-Beri tahu saya kalau mau saya langsung kerjakan salah satu (atau semua) dari daftar di atas — terutama poin 1 & 2 karena keduanya berada tepat di jalur transaksi uang yang paling sering dieksekusi (checkout & penyelesaian booking).
+Beri tahu saya kalau mau saya lanjut kerjakan poin 2 — sama-sama berada di jalur "selesaikan booking" yang paling sering dieksekusi, dan memperkuat perbaikan transaksi yang baru selesai.

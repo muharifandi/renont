@@ -1,12 +1,12 @@
 <?php
 
 defined('BASEPATH') OR exit('No direct script access allowed');
-require APPPATH.'libraries/REST_Base_Controller.php';
+require APPPATH.'libraries/Api_Base_Controller.php';
 
 /**
  * Customer-side view of bookings (transaction_rent_vehicle resource).
  */
-class CustomerRent extends REST_Base_Controller
+class CustomerRent extends Api_Base_Controller
 {
 	public function __construct()
 	{
@@ -99,17 +99,28 @@ class CustomerRent extends REST_Base_Controller
 		}
 
 		$vehicle = $this->RentVehicle_m->vehicle_detail($transaction_detail->item_id);
+
+		$this->db->trans_start();
 		$this->RentVehicle_m->update_transaction_status($id, 11);
 		$status = $this->RentVehicle_m->get_transaction_status_name(11);
 		$this->RentVehicle_m->add_timeline_transaction(['transaction_id' => $id, 'title' => $status->name, 'description' => $status->name]);
 
+		if ($transaction_detail->cash_on_delivery == 1) {
+			$this->Customer_m->increase_balance($vehicle->account_id, $transaction_detail->admin_fee);
+		} else {
+			$this->Customer_m->increase_balance($account->id, $transaction_detail->total_payment);
+		}
+		$this->db->trans_complete();
+
+		if ($this->db->trans_status() === FALSE) {
+			return $this->fail('Gagal membatalkan pemesanan, silakan coba lagi', 500);
+		}
+
 		$this->_notify_status($id, $vehicle->account_id, $account->id, 'Transaksi #'.$id.' telah dibatalkan oleh pelanggan.', 'Berhasil membatalkan rental kendaraan #'.$id);
 
 		if ($transaction_detail->cash_on_delivery == 1) {
-			$this->Customer_m->increase_balance($vehicle->account_id, $transaction_detail->admin_fee);
 			$this->ok(null, 'Berhasil membatalkan pemesanan.');
 		} else {
-			$this->Customer_m->increase_balance($account->id, $transaction_detail->total_payment);
 			$this->ok(null, 'Berhasil membatalkan pemesanan. Pembayaran akan dikembalikan ke saldo');
 		}
 	}
@@ -132,9 +143,15 @@ class CustomerRent extends REST_Base_Controller
 			return $this->forbidden();
 		}
 
+		$this->db->trans_start();
 		$this->RentVehicle_m->update_transaction_status($id, $new_status);
 		$status = $this->RentVehicle_m->get_transaction_status_name($new_status);
 		$this->RentVehicle_m->add_timeline_transaction(['transaction_id' => $id, 'title' => $status->name, 'description' => $status->name]);
+		$this->db->trans_complete();
+
+		if ($this->db->trans_status() === FALSE) {
+			return $this->fail('Gagal mengubah status pemesanan, silakan coba lagi', 500);
+		}
 
 		$vehicle = $this->RentVehicle_m->vehicle_detail($transaction_detail->item_id);
 		$this->_notify_status($id, $vehicle->account_id, $transaction_detail->account_id, 'Transaksi #'.$id.' : '.$status->name, 'Transaksi #'.$id.' : '.$status->name);

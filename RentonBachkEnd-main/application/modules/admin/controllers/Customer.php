@@ -180,7 +180,14 @@ class Customer extends REST_Base_Controller
 		}
 
 		$status_id = $this->put('status_id');
+
+		$this->db->trans_start();
 		$this->Customer_m->update_topup_status($id, $status_id);
+		$this->db->trans_complete();
+
+		if ($this->db->trans_status() === FALSE) {
+			return $this->fail('Gagal memproses topup, silakan coba lagi', 500);
+		}
 
 		$detail = $this->Customer_m->topup_detail($id);
 		$status = $this->Customer_m->get_topup_status($status_id);
@@ -243,7 +250,14 @@ class Customer extends REST_Base_Controller
 
 		$status_id = $this->put('status_id');
 		$description = $this->put('description');
+
+		$this->db->trans_start();
 		$this->Customer_m->update_withdraw_status($id, $status_id, $description);
+		$this->db->trans_complete();
+
+		if ($this->db->trans_status() === FALSE) {
+			return $this->fail('Gagal memproses penarikan dana, silakan coba lagi', 500);
+		}
 
 		$detail = $this->Customer_m->withdraw_detail($id);
 		$status = $this->Customer_m->get_withdraw_status($status_id);

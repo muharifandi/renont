@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "RentOn"
+rootProject.name = "Sapiriku"
 include(":app")

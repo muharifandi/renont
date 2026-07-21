@@ -44,4 +44,4 @@ Status: **IN PROGRESS**
 - [ ] Pindahkan logic mapping DTO -> Domain ke layer Data (RepositoryImpl).
 
 ### Tahap 5: Audit Akhir
-- [ ] Pastikan 0 framework dependencies di `com.rentone.user.domain`.
+- [ ] Pastikan 0 framework dependencies di `com.nusatim.sapiriku.domain`.

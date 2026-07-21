@@ -1,53 +1,26 @@
 {
   "project_info": {
-    "project_number": "839779435507",
-    "firebase_url": "https://fine-nimbus-240815.firebaseio.com",
-    "project_id": "fine-nimbus-240815",
-    "storage_bucket": "fine-nimbus-240815.appspot.com"
+    "project_number": "307055587487",
+    "project_id": "sapiriku-2026",
+    "storage_bucket": "sapiriku-2026.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:839779435507:android:1de61b6bc1d9dad82d0886",
+        "mobilesdk_app_id": "1:307055587487:android:ff565e62c74ce6481af2aa",
         "android_client_info": {
-          "package_name": "com.rentone.user"
+          "package_name": "com.nusatim.sapiriku.dev"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "839779435507-28fmlvnpri0mn3dvhepqfumiv3f9234g.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.rentone.user",
-            "certificate_hash": "7ab212e3dbe48fd81be0ed2466cb703818686f4f"
-          }
-        },
-        {
-          "client_id": "839779435507-irt7fi1gm3mnbbc6hao6nrp1rlbk8aea.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.rentone.user",
-            "certificate_hash": "2d9ff2c8ce8d638eafc5b4013f1a8000b2ea46e9"
-          }
-        },
-        {
-          "client_id": "839779435507-68lvqf3dkidta0299sknurdcp9rl1514.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDEYCB8_5edoA_p0f-uKAnbI9o55uzPqsU"
+          "current_key": "AIzaSyAOSxjvJboTh5sWyIpzzNGQR_Kvgl8PfcA"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "839779435507-68lvqf3dkidta0299sknurdcp9rl1514.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

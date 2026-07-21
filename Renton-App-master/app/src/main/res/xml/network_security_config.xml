@@ -1,13 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Production API (core/common/Config.kt HOST_URL) must always use HTTPS. -->
-    <domain-config cleartextTrafficPermitted="false">
-        <domain includeSubdomains="true">cp.renton.co.id</domain>
-    </domain-config>
-
-    <!-- Dev / staging / local-emulator endpoints only. -->
     <domain-config cleartextTrafficPermitted="true">
-        <domain includeSubdomains="true">192.168.56.1</domain>
         <domain includeSubdomains="true">localhost</domain>
-        <domain includeSubdomains="true">test.renton.co.id</domain>
+        <domain includeSubdomains="true">10.0.2.2</domain> <!-- Android Emulator localhost -->
     </domain-config>
 </network-security-config>

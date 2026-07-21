@@ -121,7 +121,7 @@
                     android:textAlignment="center"
                     android:textColor="@color/colorAccent"
                     android:textStyle="bold"
-                    tools:text="RentOn.co.id" />
+                    tools:text="Sapiriku.co.id" />
 
             </LinearLayout>
 

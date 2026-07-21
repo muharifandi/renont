@@ -105,13 +105,13 @@
                         android:layout_marginTop="8dp"
                         android:text="@string/forgot_password" />
 
-                    <com.google.android.material.button.MaterialButton
+                    <com.nusatim.sapiriku.core.ui.component.SapirikuButton
                         android:id="@+id/btnLogin"
-                        style="@style/Widget.Material3.Button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
-                        android:text="@string/login" />
+                        android:text="@string/login"
+                        app:btnType="primary" />
 
                     <TextView
                         android:layout_width="match_parent"

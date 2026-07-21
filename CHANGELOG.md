@@ -6,6 +6,9 @@ Catatan setiap perubahan pada `RentonBachkEnd-main/`, diurutkan dari yang terbar
 
 ## 2026-07-22
 
+### [2026-07-22 01:41] Commit: tidak ada perubahan backend baru
+- Tidak ada perubahan di `RentonBachkEnd-main/` sejak commit sebelumnya (`a7f2b22`). Commit kali ini hanya menyertakan perubahan `Renton-App-master/` (Android app) yang sedang pending, atas konfirmasi eksplisit.
+
 ### [2026-07-22 00:48] Fix: request ke seluruh endpoint ditolak "invalid API key" — termasuk login/register
 - **Penyebab:** `rest_enable_keys = TRUE` di keempat modul (`api`, `admin`, `agent`, `auth`) membuat library `REST_Controller` mewajibkan header `key` valid untuk SEMUA endpoint sebelum kode controller sempat jalan — termasuk `login`/`register` yang justru seharusnya publik (masalah ayam-telur: butuh key untuk login, padahal login yang memberi key).
 - **Fix:** `rest_enable_keys` diubah ke `FALSE` di `application/modules/{api,auth,admin,agent}/config/rest.php`. Otorisasi sesungguhnya tetap berjalan penuh lewat `require_auth()`/`require_auth_group()` di dalam masing-masing method controller (diverifikasi ulang: hanya `index_get()` root—pesan statis tanpa data—dan `__construct()` yang tidak memanggil salah satu dari keduanya).

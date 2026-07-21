@@ -4,4 +4,14 @@
         <attr name="checkView_strokeWidth" format="dimension"/>
         <attr name="checkView_strokeColor" format="color"/>
     </declare-styleable>
+
+    <declare-styleable name="SapirikuButton">
+        <attr name="android:text" />
+        <attr name="android:enabled" />
+        <attr name="btnIsLoading" format="boolean" />
+        <attr name="btnType" format="enum">
+            <enum name="primary" value="0" />
+            <enum name="outline" value="1" />
+        </attr>
+    </declare-styleable>
 </resources>

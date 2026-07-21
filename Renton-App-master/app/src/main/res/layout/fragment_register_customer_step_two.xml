@@ -49,7 +49,7 @@
                         android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkIdentityNumber"
                     android:layout_width="24dp"
                     android:layout_height="24dp"

@@ -100,7 +100,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkTitle"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -135,7 +135,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkVehicleType"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -169,7 +169,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkBrand"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -203,7 +203,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkModel"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -245,7 +245,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkColor"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -281,7 +281,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkMaxPassenger"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -317,7 +317,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkMaxBaggage"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -353,7 +353,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkYear"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -387,7 +387,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkDriven"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -421,7 +421,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkTransmitionType"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -455,7 +455,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkFuel"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -491,7 +491,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkPrice"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -527,7 +527,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkPriceWithDriverBasic"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -563,7 +563,7 @@
 
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkPriceWithDriverFull"
                     android:layout_width="24dp"
                     android:layout_height="24dp"

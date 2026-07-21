@@ -14,7 +14,7 @@ Menjadikan layer Domain sebagai **Pure Kotlin** yang independen sepenuhnya dari 
 
 ### 2. Eliminasi Kebocoran DTO (DTO Leakage)
 - **Status Akhir**: **0 Kebocoran**.
-- **Perubahan**: Interface `Repository` dan `UseCase` tidak lagi mengekspos atau menerima model respons API (DTO) dari paket `com.rentone.user.api.model`.
+- **Perubahan**: Interface `Repository` dan `UseCase` tidak lagi mengekspos atau menerima model respons API (DTO) dari paket `com.nusatim.sapiriku.api.model`.
 - **Solusi**: Implementasi sistem **Mapper** di layer Data yang secara eksklusif menangani konversi DTO → Domain Model.
 
 ### 3. Penerapan Interface Segregation Principle (ISP)

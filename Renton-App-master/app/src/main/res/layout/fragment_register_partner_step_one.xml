@@ -133,7 +133,7 @@
                         android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkCompanyName"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -164,7 +164,7 @@
                         android:singleLine="false" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkDescription"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -196,7 +196,7 @@
                         android:singleLine="true" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkRegency"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -227,7 +227,7 @@
                         android:singleLine="false" />
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkAddress"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
@@ -251,7 +251,7 @@
                     android:background="@drawable/button_effect"
                     android:text="@string/input_pick_bussiness_location" />
 
-                <com.rentone.user.core.ui.CheckView
+                <com.nusatim.sapiriku.core.ui.CheckView
                     android:id="@+id/checkBussinessLocation"
                     android:layout_width="24dp"
                     android:layout_height="24dp"

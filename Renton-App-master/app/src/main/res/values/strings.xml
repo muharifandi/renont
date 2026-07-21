@@ -1,5 +1,4 @@
 <resources>
-    <string name="app_name">RentOn</string>
 
     <string name="email_not_valid">Email is not valid</string>
     <string name="phone_not_valid">Phone Number is not valid</string>
@@ -343,7 +342,7 @@
     <string name="menu_news">News</string>
     <string name="valid_on">Valid On</string>
     <string name="voucher_code_message">Voucher Code copied to clipboard</string>
-    <string name="default_notification_channel_id" translatable="false">rentone</string>
+    <string name="default_notification_channel_id" translatable="false">sapiriku</string>
     <string name="type_here">Type Here</string>
     <string name="date_container_booked">Date you selected contain with booked date</string>
     <string name="start_from">Start From</string>
@@ -352,7 +351,7 @@
     <string name="title_about">About Us</string>
     <string name="version">Version</string>
     <string name="icon_by">Icon By</string>
-    <string name="freepick_dot_com">RentOn.coid</string>
+    <string name="freepick_dot_com">Sapiriku.coid</string>
     <string name="register">Register</string>
     <string name="car_with_driver">Rent Car + Driver</string>
     <string name="mototrcycle">Rent Motorcycle</string>

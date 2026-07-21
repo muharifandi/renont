@@ -7,18 +7,18 @@
 
     <fragment
         android:id="@+id/nav_home"
-        android:name="com.rentone.user.presentation.feature.home.HomeFragment"
+        android:name="com.nusatim.sapiriku.presentation.feature.home.HomeFragment"
         android:label="@string/menu_home"
         tools:layout="@layout/fragment_home"/>
 
     <fragment
         android:id="@+id/nav_account"
-        android:name="com.rentone.user.presentation.feature.account.AccountFragment"
+        android:name="com.nusatim.sapiriku.presentation.feature.account.AccountFragment"
         android:label="@string/menu_account"
         tools:layout="@layout/fragment_account" />
     <fragment
         android:id="@+id/nav_transaction"
-        android:name="com.rentone.user.presentation.feature.customer.transaction.CustomerTransactionFragment"
+        android:name="com.nusatim.sapiriku.presentation.feature.customer.transaction.CustomerTransactionFragment"
         android:label="@string/menu_transaction"
         tools:layout="@layout/fragment_customer_transaction" />
 

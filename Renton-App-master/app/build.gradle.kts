@@ -18,31 +18,50 @@ val localProperties = Properties().apply {
 val mapsApiKey: String = localProperties.getProperty("MAPS_API_KEY") ?: "YOUR_KEY_HERE"
 
 android {
-    namespace = "com.rentone.user"
-    compileSdk = 34
+    namespace = "com.nusatim.sapiriku"
+    compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.rentone.user"
-        minSdk = 24
-        targetSdk = 34
+        applicationId = "com.nusatim.sapiriku"
+        minSdk = 22
+        targetSdk = 35
         versionCode = 7
         versionName = "1.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
 
-        // Google Maps key is read from the gitignored local.properties (MAPS_API_KEY=...)
-        // instead of being committed in res/values/google_maps_api.xml.
         resValue("string", "google_maps_key", mapsApiKey)
     }
 
     buildTypes {
-        getByName("release") {
+        debug {
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+            isMinifyEnabled = false
+            isDebuggable = true
+        }
+        release {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+        }
+    }
+
+    flavorDimensions.add("environment")
+    productFlavors {
+        create("development") {
+            dimension = "environment"
+            applicationIdSuffix = ".dev"
+            buildConfigField("String", "BASE_URL", "\"http://localhost/renton/\"")
+            resValue("string", "app_name", "Sapiriku Dev")
+        }
+        create("production") {
+            dimension = "environment"
+            buildConfigField("String", "BASE_URL", "\"http://localhost/renton/\"") // Update with real production URL later
+            resValue("string", "app_name", "Sapiriku")
         }
     }
 

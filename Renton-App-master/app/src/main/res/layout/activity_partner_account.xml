@@ -259,7 +259,7 @@
                         android:textColor="@color/colorAccent"
                         android:textStyle="bold" />
 
-                    <com.rentone.user.custom.ListViewWrapped
+                    <com.nusatim.sapiriku.custom.ListViewWrapped
                         android:id="@+id/lvFeature"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />

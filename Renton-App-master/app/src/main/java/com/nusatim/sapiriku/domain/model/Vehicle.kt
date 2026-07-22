@@ -1,9 +1,11 @@
 package com.nusatim.sapiriku.domain.model
 
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.Serializable
 
 
 @Serializable
+@OptIn(InternalSerializationApi::class)
 data class Vehicle(
     val id: Int = 0,
     val promote: Int = 0,
@@ -54,6 +56,7 @@ data class Vehicle(
 
 
 @Serializable
+@OptIn(InternalSerializationApi::class)
 data class VehicleItemImage(
     val id: Int = 0,
     val itemId: Int = 0,

@@ -49,8 +49,22 @@ Semua nilai sensitif (DB, SMTP, FCM key, `app_secret_key`, `encryption_key`) yan
 
 ## ✅ Aksi Administratif
 
-- [x] ~~Commit & push perubahan penyelarasan Android service~~ — selesai, commit `b9ad776`, sudah di-push ke `main`.
+- [x] ~~Commit & push perubahan penyelarasan Android service~~ — selesai, commit lama `b9ad776` (**SHA ini sekarang usang, lihat catatan riwayat git di bawah**).
+- [x] ~~Hapus file dan folder tidak penting~~ — selesai 23 Juli 2026: `.DS_Store` (11 file, semua platform) dihapus; `Renton-App-master/.gradle/` (64MB, cache Gradle) dan `Renton-App-master/app/build/` (152MB, output build Android) dihapus — keduanya tidak ter-track git, regenerate otomatis di build berikutnya.
 - [ ] Pertimbangkan pindahkan folder proyek ini keluar dari `~/Documents` (kemungkinan tersinkron iCloud Drive) — sudah 3 kali file/folder hilang tanpa penjelasan (`.htaccess`, folder backup, beberapa file dokumentasi).
+
+### 🚨 Riwayat git ditulis ulang, 23 Juli 2026 — kebocoran PII
+
+Ditemukan saat mengecek file "tidak penting" di `database/`: **`db_rentone_06_Dec_2021_demo.sql` (ter-track di git, ada di 2 path berbeda: `RentonBachkEnd-main/database/` dan `RentonBachkEnd-main-backup-2026-07-19/database/`) berisi 273 alamat email pelanggan ASLI**, bukan data dummy meski namanya "demo" — di repo **public**.
+
+- **Tindakan (atas persetujuan eksplisit user)**: `git filter-repo` dipakai untuk menghapus kedua salinan file itu dari **seluruh riwayat commit**, lalu `git push origin main --force`. Diverifikasi dengan mencari string email yang bocor (`7fold1999@gmail.com`) di seluruh ~9177 blob objek repo — tidak ditemukan lagi di mana pun.
+- **Backup dibuat sebelum operasi**: mirror clone penuh repo (sebelum rewrite) disimpan di scratchpad sesi Claude Code — kalau butuh, beri tahu di sesi berikutnya untuk saya cari lokasinya (sifatnya sementara, bisa hilang kalau sesi lama dibersihkan sistem).
+- **⚠️ Dampak yang perlu diketahui**:
+  - **Semua SHA commit berubah** karena history ditulis ulang sepenuhnya — semua referensi commit hash di CHANGELOG.md/TODO.md dari sebelum 23 Juli 2026 sore (mis. `b9ad776`, `069c759`, `83ea9f8`) **sudah tidak valid lagi**, tidak akan ditemukan di `git log` sekarang.
+  - **Siapa pun yang sudah clone/fork repo ini sebelum operasi ini** akan punya riwayat lama yang divergen — mereka perlu clone ulang dari awal (bukan sekadar `git pull`) untuk sinkron, atau akan mengalami konflik histori yang membingungkan.
+  - Force-push membersihkan `origin` di GitHub, tapi **tidak menjamin cache internal GitHub (mis. compare-view lama, PR/issue lama yang mereferensikan commit lama) langsung hilang** — biasanya di-garbage-collect otomatis, tapi kalau butuh kepastian penuh (data ini pernah bocor, bukan cuma risiko teoretis), pertimbangkan hubungi GitHub Support untuk permintaan penghapusan cache eksplisit.
+  - `rentone-dengan-data-startup.sql` (juga ter-track, 6.3MB) **TIDAK ikut dihapus** — sudah dicek isinya cuma `admin@admin.com` (seed data biasa, bukan PII), aman dibiarkan.
+- **Belum diputuskan**: apakah perlu langkah lanjutan di luar git (mis. cek apakah ada yang sempat fork/clone repo ini, atau notifikasi ke pelanggan yang datanya bocor) — di luar cakupan teknis yang bisa saya lakukan, murni keputusan Anda.
 
 ---
 

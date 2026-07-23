@@ -8,6 +8,9 @@
 RentonBachkEnd-main/.env.*
 !RentonBachkEnd-main/.env.example
 
+# Service account FCM (private key OAuth2) -- jangan pernah masuk repo publik
+**/*fcm-service-account*.json
+
 # Config tool lokal (Claude Code), bukan source proyek
 .claude/
 

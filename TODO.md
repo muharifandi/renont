@@ -43,9 +43,27 @@ Semua nilai sensitif (DB, SMTP, FCM key, `app_secret_key`, `encryption_key`) yan
 - [ ] `csrf_protection` masih `FALSE` — relevansinya berkurang untuk REST API stateless, tapi sebaiknya tidak dibiarkan tanpa alasan eksplisit.
 - [x] ~~Refactor `admin/Config.php::admins_get()` jadi 1 query JOIN~~ — selesai 23 Juli 2026. Dulu: 1 query semua akun + 1 query per akun untuk grup (N+1). Sekarang: 1 query `JOIN accounts_groups/groups` + `GROUP_CONCAT` di `Config_m::get_admins()`, dipanggil dari controller. Response shape sama persis (field `groups` tetap string comma-separated, hanya nama grup staff). Lint OK.
 - [ ] Perbaiki anomali skema: `agent_withdraw.status` salah reference ke `customer_withdraw_status`; FK hilang di `partners.agent_id`/`customers.referal_id`/`partners.referal_id`; tabel `config` tanpa `PRIMARY KEY`.
-- [ ] Migrasi FCM push notification dari Legacy HTTP API (mati sejak Juni 2024) ke FCM HTTP v1 (OAuth2 service account) — fitur push saat ini sepenuhnya tidak berfungsi apa pun konfigurasinya.
+- [x] ~~Migrasi FCM push notification ke HTTP v1~~ — kodenya selesai 23 Juli 2026, **tapi butuh 1 langkah dari Anda sebelum aktif** (lihat bagian 🔔 di bawah).
 - [ ] Setup Swagger/OpenAPI auto-generate dari anotasi kode (`zircote/swagger-php` + Composer) — saat ini `openapi.json` manual, bisa jadi tidak sinkron kalau ada endpoint baru. **Sudah di-skip user untuk saat ini, jangan dikerjakan tanpa diminta ulang.**
 - [ ] Susun ulang dokumen yang hilang dari disk & git history (tidak diketahui penyebabnya, dugaan terkait iCloud Drive): `RentOn-API-Endpoint-Documentation.md`/`-EN.md`, `RentOn-Konversi-REST-API.md`, `RentOn-Audit-Keamanan-Backend.md` — hanya kalau dibutuhkan lagi.
+
+### 🔔 Migrasi FCM ke HTTP v1 (baru, 23 Juli 2026) — perlu 1 langkah dari Anda
+
+Legacy FCM HTTP API (`fcm.googleapis.com/fcm/send`, server key sederhana) mati sejak Juni 2024 — semua kode lama tetap memanggilnya tanpa error yang terlihat (17 titik panggilan di 11 file, semuanya fire-and-forget `$this->fcm->send()` tanpa pernah cek hasilnya), tapi tidak ada notifikasi yang benar-benar terkirim.
+
+**Yang sudah selesai (kode):**
+- `application/libraries/Fcm.php` ditulis ulang total — sekarang pakai OAuth2 via service account (JWT ditandatangani sendiri pakai `openssl_sign`, ditukar ke access token lewat `oauth2.googleapis.com/token`, dikirim ke `fcm.googleapis.com/v1/projects/{project_id}/messages:send`). Tidak pakai Composer/library Google resmi (proyek ini memang tidak pakai Composer) — murni curl + openssl, konsisten dengan gaya kode yang sudah ada.
+- **Nama & signature method publik SAMA PERSIS** dengan versi lama (`setData`, `setNotification`, `addRecepient`, `setRecepients`, `setGroup`, `setTtl`, `send()`) — jadi **tidak satu pun dari 17 titik panggilan yang perlu diubah**, semuanya tetap jalan seperti biasa.
+- FCM v1 tidak punya endpoint multicast (beda dari legacy yang bisa kirim ke banyak `registration_ids` sekaligus) — sekarang loop 1 HTTP request per token. Cukup untuk skala saat ini; kalau nanti fitur broadcast (`News::send_notification` ke semua partner/customer) melayani ribuan penerima sekaligus, pertimbangkan topic messaging.
+- Payload lama yang menumpangkan `android_channel_id`/`sound` sebagai field notification biasa sekarang dipindah dengan benar ke `android.notification.channel_id`/`sound` (field asli FCM v1).
+- **Penting — beda perilaku dari versi lama**: kalau service account belum ada/tidak valid, `send()` sekarang gagal dengan tenang (log error, return `false`) — TIDAK seperti versi lama yang langsung `show_error()` (mematikan seluruh request) kalau config kosong. Ini sengaja, supaya alur inti seperti booking/chat/topup tidak ikut rusak hanya karena FCM belum dikonfigurasi.
+- **Diverifikasi tanpa kredensial asli**: dites pakai RSA keypair & service account palsu — struktur JWT benar, tanda tangan valid (diverifikasi ulang dengan public key), transformasi payload (title/body, channel_id/sound, koersi ke string) sesuai ekspektasi untuk beberapa bentuk payload nyata dari codebase (notifikasi chat & booking), dan yang penting: percobaan tukar token ke Google (dengan kredensial palsu) **gagal dengan pesan `invalid_grant: account not found`** — bukan error format — artinya struktur JWT-nya sudah benar diterima Google, tinggal butuh service account asli.
+
+**⚠️ Yang perlu Anda lakukan supaya push notification benar-benar aktif:**
+1. Buka Firebase Console → project RentOn (project ID: `fine-nimbus-240815`, dari `firebase-config.js`) → ⚙️ **Project Settings** → tab **Service accounts** → tombol **Generate new private key** → unduh file JSON-nya.
+2. Taruh file itu di `RentonBachkEnd-main/.fcm-service-account.json` (lokasi default, dipakai ketiga environment sekaligus — sudah di-`.gitignore`, aman tidak ikut ter-commit). Kalau mau path lain, set `FCM_SERVICE_ACCOUNT_PATH` di `.env.{environment}` masing-masing.
+3. Tidak perlu restart apa pun — langsung aktif di request berikutnya.
+- **`FCM_API_KEY`** (server key legacy) sudah dihapus dari `.env.example` dan dikomentari di ketiga `.env.{environment}` (sudah mati total, tidak dipakai lagi oleh kode).
 
 ## ✅ Aksi Administratif
 

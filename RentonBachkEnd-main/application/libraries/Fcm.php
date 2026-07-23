@@ -1,251 +1,318 @@
 <?php
+defined('BASEPATH') OR exit('No direct script access allowed');
 /**
+ * FCM HTTP v1 client (migrated from the legacy FCM/GCM HTTP API, shut down
+ * by Google in June 2024). Public method names/signatures are kept
+ * identical to the old library on purpose -- every call site across the
+ * app (17 of them) just does setRecepients()/addRecepient() -> setData()
+ * -> setNotification() -> send() and never inspects the return value or
+ * ->status/->messagesStatuses, so none of those call sites need to change.
  *
- * @package GCM (Google Cloud Messaging)
- * @copyright (c) 2012 AntonGorodezkiy
- * info: https://github.com/antongorodezkiy/codeigniter-gcm/
- * Description: PHP Codeigniter Google Cloud Messaging Library
- * License: BSD
- *
- * Copyright (c) 2012, AntonGorodezkiy
- * All rights reserved.
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
- * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
- * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
- * 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
+ * Auth: HTTP v1 requires an OAuth2 Bearer token obtained via a Google
+ * service-account JSON key (no more simple server key). This library signs
+ * its own JWT and exchanges it for an access token (cached to a temp file,
+ * reused until near expiry) using only curl/openssl -- no Composer/Google
+ * client library, consistent with the rest of this codebase.
  */
 class FCM {
-    protected $apiKey = '';
-    protected $apiSendAddress = '';
+    protected $serviceAccountPath = '';
+    protected $projectId = '';
+    protected $clientEmail = '';
+    protected $privateKey = '';
     protected $payload = array();
-    protected $additionalData = array();
-    protected $recepients = array();
     protected $message = '';
     public $status = array();
     public $messagesStatuses = array();
-    public $responseData = null;
-    public $responseInfo = null;
-    protected $errorStatuses = array(
-        'Unavailable' => 'Maybe missed API key',
-        'MismatchSenderId' => 'Make sure you\'re using one of those when trying to send messages to the device. If you switch to a different sender, the existing registration IDs won\'t work.',
-        'MissingRegistration' => 'Check that the request contains a registration ID',
-        'InvalidRegistration' => 'Check the formatting of the registration ID that you pass to the server. Make sure it matches the registration ID the phone receives in the google',
-        'NotRegistered' => 'Not registered',
-        'MessageTooBig' => 'The total size of the payload data that is included in a message can\'t exceed 4096 bytes'
-    );
-    /**
-     * Constructor
-     */
-    public function __construct() {
+
+    public function __construct()
+    {
         $ci =& get_instance();
-        $ci->load->config('fcm',true);
-        $this->apiKey = $ci->config->item('fcm_api_key','fcm');
-        $this->apiSendAddress = $ci->config->item('fcm_api_send_address','fcm');
-        if (!$this->apiKey) {
-            show_error('FCM: Needed API Key');
+        $ci->load->config('fcm', true);
+        $this->serviceAccountPath = $ci->config->item('fcm_service_account_path', 'fcm');
+
+        if ($this->serviceAccountPath && is_file($this->serviceAccountPath)) {
+            $sa = json_decode(file_get_contents($this->serviceAccountPath), true);
+            if (is_array($sa)) {
+                $this->projectId = $sa['project_id'] ?? '';
+                $this->clientEmail = $sa['client_email'] ?? '';
+                $this->privateKey = $sa['private_key'] ?? '';
+            }
         }
-        if (!$this->apiSendAddress) {
-            show_error('FCM: Needed API Send Address');
+
+        if (!$this->projectId || !$this->clientEmail || !$this->privateKey) {
+            // Deliberately NOT show_error()/exit here (unlike the old library):
+            // push notifications are a side-effect of core flows like booking
+            // creation and chat -- those must keep working even if FCM isn't
+            // configured yet. send() below just no-ops with a logged error.
+            log_message('error', 'FCM: service account not configured or unreadable at "'.$this->serviceAccountPath.'" -- push notifications are disabled until this is fixed.');
         }
     }
-	
-	public function setApiKey($key)
-	{
-		$this->apiKey = $key;
-	}
-    /**
-     * Sets additional data which will be send with main apn message
-     *
-     * @param <array> $data
-     * @return <array>
-     */
+
+    /** Kept only so existing call sites (`$this->fcm->setApiKey(...)`) don't fatal-error; FCM v1 has no per-call API key. */
+    public function setApiKey($key) {}
+
     public function setTtl($ttl = '')
     {
-        if (!$ttl)
+        if (!$ttl) {
             unset($this->payload['time_to_live']);
-        else
+        } else {
             $this->payload['time_to_live'] = $ttl;
+        }
     }
-    /**
-     * Setting GCM message
-     *
-     * @param <string> $message
-     */
-    public function setMessage($message = '') {
+
+    public function setMessage($message = '')
+    {
         $this->message = $message;
         $this->payload['data']['message'] = $message;
     }
-    /**
-     * Setting data to message
-     *
-     * @param <string> $data
-     */
-    public function setData($data = array()) {
+
+    public function setData($data = array())
+    {
         $this->payload['data'] = $data;
-        if ($this->message)
+        if ($this->message) {
             $this->payload['data']['message'] = $this->message;
+        }
     }
-    
-    public function setNotification($data = array()) {
+
+    public function setNotification($data = array())
+    {
         $this->payload['notification'] = $data;
-        if ($this->message)
+        if ($this->message) {
             $this->payload['notification']['message'] = $this->message;
+        }
     }
-    /**
-     * Setting group of messages
-     *
-     * @param <string> $group
-     */
-    public function setGroup($group = '') {
-        if (!$group)
+
+    public function setGroup($group = '')
+    {
+        if (!$group) {
             unset($this->payload['collapse_key']);
-        else
+        } else {
             $this->payload['collapse_key'] = $group;
+        }
     }
-    /**
-     * Adding one recepient
-     *
-     * @param <string> $group
-     */
-    public function addRecepient($registrationId) {
+
+    public function addRecepient($registrationId)
+    {
         $this->payload['registration_ids'][] = $registrationId;
     }
-    /**
-     * Setting all recepients
-     *
-     * @param <string> $group
-     */
-    public function setRecepients($registrationIds) {
+
+    public function setRecepients($registrationIds)
+    {
         $this->payload['registration_ids'] = $registrationIds;
     }
-    /**
-     * Clearing group of messages
-     */
-    public function clearRecepients() {
+
+    public function clearRecepients()
+    {
         $this->payload['registration_ids'] = array();
     }
+
     /**
-     * Senging messages to Google Cloud Messaging
-     *
-     * @param <string> $group
+     * Sends to every recipient token. FCM v1 has no multicast endpoint (unlike
+     * the legacy API's `registration_ids`), so this loops one HTTP request per
+     * token -- fine at this app's scale, but a broadcast to a very large
+     * audience (e.g. News::send_notification to "all customers") would be
+     * worth moving to topic messaging if that list ever grows large.
      */
     public function send()
     {
-        $this->payload['registration_ids'] = array_unique($this->payload['registration_ids']);
-        sort($this->payload['registration_ids']);
-        if (isset($this->payload['time_to_live']) && !isset($this->payload['collapse_key']))
-            $this->payload['collapse_key'] = 'FCM Notifications';
-        $data = json_encode($this->payload);
-        return $this->request($data);
-    }
-    protected function request($data)
-    {
-        $headers[] = 'Content-Type:application/json';
-        $headers[] = 'Authorization:key='.$this->apiKey;
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $this->apiSendAddress);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, false);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($curl, CURLOPT_HEADER, true);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-        $this->responseData = curl_exec($curl);
-        $this->responseInfo = curl_getinfo($curl);
-        curl_close($curl);
-        return $this->parseResponse();
-    }
-    protected function parseResponse()
-    {
-        if ($this->responseInfo['http_code'] == 200)
-        {
-            $response = explode("\n",$this->responseData);
-            $responseBody = json_decode($response[count($response)-1]);
-            if ($responseBody->success && !$responseBody->failure)
-            {
-                $message = 'All messages were sent successfully';
-                $error = 0;
-            }
-            elseif ($responseBody->success && $responseBody->failure)
-            {
-                $message = $responseBody->success.' of '.($responseBody->success+$responseBody->failure).' messages were sent successfully';
-                $error = 1;
-            }
-            elseif (!$responseBody->success && $responseBody->failure)
-            {
-                $message = 'No messages cannot be sent. '.$responseBody->results[0]->error;
-                $error = 1;
-            }
-            $this->status = array(
-                'error' => $error,
-                'message' => $message
-            );
+        $tokens = array_values(array_unique($this->payload['registration_ids'] ?? array()));
+        sort($tokens);
+
+        if (empty($tokens)) {
+            $this->status = array('error' => 1, 'message' => 'No recipients');
             $this->messagesStatuses = array();
-            foreach($responseBody->results as $key => $result)
-            {
-                if (isset($result->error) && $result->error)
-                {
-                    $this->messagesStatuses[$key] = array(
-                        'error' => 1,
-                        'regid' => $this->payload['registration_ids'][$key],
-                        'message' => $this->errorStatuses[$result->error],
-                        'message_id' => ''
-                    );
-                }
-                else
-                {
-                    $this->messagesStatuses[$key] = array(
-                        'error' => 0,
-                        'regid' => $this->payload['registration_ids'][$key],
-                        'message' => 'Message was sent successfully',
-                        'message_id' => $result->message_id
-                    );
-                }
+            return false;
+        }
+
+        $accessToken = $this->getAccessToken();
+        if (!$accessToken) {
+            $this->status = array('error' => 1, 'message' => 'Could not obtain FCM OAuth2 access token (service account not configured?)');
+            $this->messagesStatuses = array();
+            return false;
+        }
+
+        $message = $this->buildMessage();
+        $this->messagesStatuses = array();
+        $errorCount = 0;
+
+        foreach ($tokens as $key => $token) {
+            $message['token'] = $token;
+            $result = $this->sendOne($message, $accessToken, $token);
+            $this->messagesStatuses[$key] = $result;
+            if ($result['error']) {
+                $errorCount++;
             }
-            return !$error;
         }
-        elseif ($this->responseInfo['http_code'] == 400)
-        {
-            $this->status = array(
-                'error' => 1,
-                'message' => 'Request could not be parsed as JSON'
+
+        $total = count($tokens);
+        $this->status = array(
+            'error' => $errorCount > 0 ? 1 : 0,
+            'message' => $errorCount === 0
+                ? 'All messages were sent successfully'
+                : ($total - $errorCount).' of '.$total.' messages were sent successfully',
+        );
+
+        return $errorCount === 0;
+    }
+
+    /** Builds the v1 `message` object (minus `token`, added per-recipient in send()). */
+    protected function buildMessage()
+    {
+        $message = array();
+
+        if (!empty($this->payload['notification'])) {
+            $notif = $this->payload['notification'];
+            $message['notification'] = array(
+                'title' => (string) ($notif['title'] ?? ''),
+                'body' => (string) ($notif['text'] ?? ($notif['body'] ?? ($notif['message'] ?? ''))),
             );
-            return false;
+
+            // The legacy payload smuggled these as top-level notification keys;
+            // v1 has real, separate fields for them under `android.notification`.
+            $androidNotification = array();
+            if (!empty($notif['android_channel_id'])) {
+                $androidNotification['channel_id'] = (string) $notif['android_channel_id'];
+            }
+            if (!empty($notif['sound'])) {
+                $androidNotification['sound'] = (string) $notif['sound'];
+            }
+            if ($androidNotification) {
+                $message['android']['notification'] = $androidNotification;
+            }
         }
-        elseif ($this->responseInfo['http_code'] == 401)
-        {
-            $this->status = array(
-                'error' => 1,
-                'message' => 'There was an error authenticating the sender account'
-            );
-            return false;
+
+        if (!empty($this->payload['data'])) {
+            // FCM v1 requires every `data` value to be a string.
+            $message['data'] = array_map(function ($value) {
+                if (is_string($value)) {
+                    return $value;
+                }
+                return is_scalar($value) ? (string) $value : json_encode($value);
+            }, $this->payload['data']);
         }
-        elseif ($this->responseInfo['http_code'] == 500)
-        {
-            $this->status = array(
-                'error' => 1,
-                'message' => 'There was an internal error in the GCM server while trying to process the request'
-            );
-            return false;
+
+        if (!empty($this->payload['collapse_key'])) {
+            $message['android']['collapse_key'] = (string) $this->payload['collapse_key'];
         }
-        elseif ($this->responseInfo['http_code'] == 503)
-        {
-            $this->status = array(
-                'error' => 1,
-                'message' => 'Server is temporarily unavailable'
-            );
-            return false;
+        if (!empty($this->payload['time_to_live'])) {
+            $message['android']['ttl'] = ((int) $this->payload['time_to_live']).'s';
         }
-        else
-        {
-            $this->status = array(
-                'error' => 1,
-                'message' => 'Status undefined'
-            );
-            return false;
+
+        return $message;
+    }
+
+    protected function sendOne($message, $accessToken, $token)
+    {
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://fcm.googleapis.com/v1/projects/'.$this->projectId.'/messages:send',
+            CURLOPT_POST => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json',
+                'Authorization: Bearer '.$accessToken,
+            ),
+            CURLOPT_POSTFIELDS => json_encode(array('message' => $message)),
+        ));
+        $responseBody = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($curl);
+        curl_close($curl);
+
+        if ($curlError) {
+            return array('error' => 1, 'regid' => $token, 'message' => 'cURL error: '.$curlError, 'message_id' => '');
         }
+
+        $decoded = json_decode($responseBody, true);
+
+        if ($httpCode === 200 && !empty($decoded['name'])) {
+            return array('error' => 0, 'regid' => $token, 'message' => 'Message was sent successfully', 'message_id' => $decoded['name']);
+        }
+
+        $errorStatus = $decoded['error']['status'] ?? ('HTTP_'.$httpCode);
+        $errorMessage = $decoded['error']['message'] ?? ('Unexpected response: '.substr((string) $responseBody, 0, 200));
+
+        return array('error' => 1, 'regid' => $token, 'message' => $errorStatus.': '.$errorMessage, 'message_id' => '');
+    }
+
+    /**
+     * Returns a valid OAuth2 access token, reusing a cached one (file-based --
+     * survives across requests/PHP-FPM workers, unlike a static property)
+     * until it's within 60s of expiring.
+     */
+    protected function getAccessToken()
+    {
+        if (!$this->projectId || !$this->clientEmail || !$this->privateKey) {
+            return null;
+        }
+
+        $cacheFile = sys_get_temp_dir().'/renton_fcm_token_'.md5($this->clientEmail).'.json';
+        if (is_file($cacheFile)) {
+            $cached = json_decode(file_get_contents($cacheFile), true);
+            if (is_array($cached) && !empty($cached['access_token']) && !empty($cached['expires_at']) && $cached['expires_at'] > (time() + 60)) {
+                return $cached['access_token'];
+            }
+        }
+
+        $jwt = $this->buildSignedJwt();
+        if (!$jwt) {
+            return null;
+        }
+
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://oauth2.googleapis.com/token',
+            CURLOPT_POST => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POSTFIELDS => http_build_query(array(
+                'grant_type' => 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+                'assertion' => $jwt,
+            )),
+        ));
+        $response = curl_exec($curl);
+        $httpCode = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        curl_close($curl);
+
+        $decoded = json_decode($response, true);
+        if ($httpCode !== 200 || empty($decoded['access_token'])) {
+            log_message('error', 'FCM: OAuth2 token exchange failed (HTTP '.$httpCode.'): '.$response);
+            return null;
+        }
+
+        file_put_contents($cacheFile, json_encode(array(
+            'access_token' => $decoded['access_token'],
+            'expires_at' => time() + (int) ($decoded['expires_in'] ?? 3600),
+        )));
+        @chmod($cacheFile, 0600);
+
+        return $decoded['access_token'];
+    }
+
+    protected function buildSignedJwt()
+    {
+        $now = time();
+        $header = $this->base64UrlEncode(json_encode(array('alg' => 'RS256', 'typ' => 'JWT')));
+        $claims = $this->base64UrlEncode(json_encode(array(
+            'iss' => $this->clientEmail,
+            'scope' => 'https://www.googleapis.com/auth/firebase.messaging',
+            'aud' => 'https://oauth2.googleapis.com/token',
+            'iat' => $now,
+            'exp' => $now + 3600,
+        )));
+
+        $signingInput = $header.'.'.$claims;
+        $signature = '';
+        $signed = openssl_sign($signingInput, $signature, $this->privateKey, 'sha256WithRSAEncryption');
+        if (!$signed) {
+            log_message('error', 'FCM: failed to sign JWT with service account private key.');
+            return null;
+        }
+
+        return $signingInput.'.'.$this->base64UrlEncode($signature);
+    }
+
+    protected function base64UrlEncode($data)
+    {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
 }

@@ -72,6 +72,17 @@ if (! defined('ENVIRONMENT')) {
   }
 }
 
+/*
+ *---------------------------------------------------------------
+ * LOAD .env SECRETS FOR THIS ENVIRONMENT
+ *---------------------------------------------------------------
+ * Populates getenv() from .env.{ENVIRONMENT} (gitignored, not tracked) so
+ * application/config/{ENVIRONMENT}/*.php can read secrets instead of
+ * hardcoding them. Must run before CodeIgniter.php loads config files.
+ */
+require_once dirname(__FILE__).'/env_loader.php';
+renton_load_env(dirname(__FILE__).'/.env.'.ENVIRONMENT);
+
 
 /**
  *  ERROR REPORTING WITH WHOOPS

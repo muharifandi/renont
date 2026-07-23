@@ -1,11 +1,12 @@
 # macOS
 **/.DS_Store
 
-# Kredensial asli — jangan pernah masuk repo publik
-**/application/config/*/database.php
-**/application/config/*/mail.php
-**/application/config/*/fcm.php
-**/application/config/*/app_secret.php
+# Kredensial asli — jangan pernah masuk repo publik.
+# database.php/mail.php/fcm.php/app_secret.php TIDAK lagi di-ignore di sini:
+# sejak 23 Juli 2026 file-file itu cuma baca getenv(), nilai aslinya pindah
+# ke .env.{development,testing,production} (di-ignore di bawah).
+RentonBachkEnd-main/.env.*
+!RentonBachkEnd-main/.env.example
 
 # Config tool lokal (Claude Code), bukan source proyek
 .claude/

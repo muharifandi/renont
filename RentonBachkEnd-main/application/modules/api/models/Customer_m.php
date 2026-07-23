@@ -263,6 +263,7 @@ class Customer_m extends MY_Model {
 	
 	function list_transaction_point($account_id,$param)
 	{
+		$this->db->where('account_id',$account_id);
 		$this->db->order_by('date_added','DESC');
 		$this->db->limit($param['limit'],( ($param['page']-1) * $param['limit'] ));
 		return $this->db->get('transaction_point')->result();

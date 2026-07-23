@@ -3,7 +3,6 @@ package com.nusatim.sapiriku.data.repository
 import com.nusatim.sapiriku.api.model.CreateBookingRequest
 import com.nusatim.sapiriku.api.model.QuoteRequest
 import com.nusatim.sapiriku.api.model.VoucherCheckRequest
-import com.nusatim.sapiriku.api.service.BasicService
 import com.nusatim.sapiriku.api.service.RentVehicleService
 import com.nusatim.sapiriku.core.common.Resource
 import com.nusatim.sapiriku.data.mapper.*

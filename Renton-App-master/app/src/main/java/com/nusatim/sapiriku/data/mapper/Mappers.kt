@@ -28,25 +28,6 @@ fun ChatMessage.toChat(): Chat = Chat(
     dateAdded = dateAdded
 )
 
-fun ListVehicleResponse.toSearchResult(): VehicleSearchResult = VehicleSearchResult(
-    vehicles = vehicles,
-    priceMin = priceMin,
-    priceMax = priceMax,
-    regencies = regencies,
-    functionalType = functionalType
-)
-
-fun VehicleDetailResponse.toVehicleDetail(): com.nusatim.sapiriku.domain.model.VehicleDetail = com.nusatim.sapiriku.domain.model.VehicleDetail(
-    vehicle = vehicle,
-    vehicleBooked = vehicleBooked,
-    partner = partner,
-    reviews = reviews,
-    reviewTotal = reviewTotal,
-    forceWithDriver = forceWithDriver
-)
-
-fun CheckVoucherResponse.toVoucher(): Voucher = voucher ?: Voucher(id = 0, status = 0)
-
 fun QuoteData.toCheckoutDetail(): CheckoutDetail = CheckoutDetail(
     vehicle = vehicle.toVehicleDomain(),
     config = config?.toRentVehicleConfig(),
@@ -57,61 +38,6 @@ fun QuoteData.toCheckoutDetail(): CheckoutDetail = CheckoutDetail(
     cashOnDelivery = cashOnDelivery
 )
 
-fun RentVehicleDetailResponse.toRentVehicleDetail(): RentVehicleDetail = RentVehicleDetail(
-    customerDetail = customerDetail,
-    partnerDetail = partnerDetail,
-    vehicle = vehicle,
-    voucher = voucher,
-    rentVehicleTransactionDetail = rentVehicleTransactionDetail,
-    balance = balance,
-    hourOvertime = hourOvertime,
-    feedback = feedback
-)
-
-fun HomeResponse.toHomeData(): com.nusatim.sapiriku.domain.model.HomeData = com.nusatim.sapiriku.domain.model.HomeData(
-    balance = balance,
-    referralCode = referralCode,
-    vehiclesRecommendation = vehiclesRecommendation,
-    promoteVehiclesRecommendation = promoteVehiclesRecommendation,
-    newsPreview = newsPreview
-)
-
-fun ApplicationStatusResponse.toApplicationStatus(): ApplicationStatus = ApplicationStatus(
-    maintenance = maintenance == 1,
-    maintenanceMessage = maintenanceMessage,
-    androidAppVersionCode = androidAppVersionCode,
-    androidAppVersionName = androidAppVersionName,
-    androidAppUpdateLink = androidAppUpdateLink
-)
-
-fun BasicResponse.toOperationResult(): OperationResult = OperationResult(
-    success = status,
-    message = message
-)
-
-fun CheckEmailResponse.toValidationResult(): ValidationResult = ValidationResult(
-    isValid = status,
-    message = message,
-    additionalInfo = additionalInfo
-)
-
-fun CheckPhoneResponse.toValidationResult(): ValidationResult = ValidationResult(
-    isValid = status,
-    message = message,
-    additionalInfo = additionalInfo
-)
-
-fun CheckAgentResponse.toValidationResult(): ValidationResult = ValidationResult(
-    isValid = status && valid,
-    message = message,
-    additionalInfo = additionalInfo
-)
-
-fun NewsDetailResponse.toNewsDetail(): NewsDetail = NewsDetail(
-    news = news,
-    voucher = voucher
-)
-
 fun VehicleInputConfigData.toInputVehicleConfig(): InputVehicleConfig = InputVehicleConfig(
     vehicleType = vehicleType.map { it.toBasicData() },
     brand = brand.map { it.toBasicData() },
@@ -119,12 +45,6 @@ fun VehicleInputConfigData.toInputVehicleConfig(): InputVehicleConfig = InputVeh
     transmitionType = transmitionType.map { it.toBasicData() },
     drivenType = drivenType.map { it.toBasicData() },
     fuel = fuel.map { it.toBasicData() }
-)
-
-fun InputPromoteRentVehicleConfigResponse.toInputPromoteRentVehicleConfig(): InputPromoteRentVehicleConfig = InputPromoteRentVehicleConfig(
-    info = info,
-    pricePerDay = pricePerDay,
-    vehicles = vehicles
 )
 
 fun ApplicationStatusData.toApplicationStatus(): ApplicationStatus = ApplicationStatus(

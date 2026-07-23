@@ -214,26 +214,7 @@ class Config extends REST_Base_Controller
 	public function admins_get()
 	{
 		$this->require_auth_group(self::STAFF_GROUP_IDS);
-		$this->load->library('ion_auth');
-
-		$users = [];
-		foreach ($this->ion_auth->users()->result() as $user) {
-			$groups = $this->ion_auth->get_users_groups($user->id)->result();
-			$names = [];
-			$match = false;
-			foreach ($groups as $g) {
-				if (in_array((int) $g->id, self::STAFF_GROUP_IDS, true)) {
-					$names[] = $g->name;
-					$match = true;
-				}
-			}
-			if ($match) {
-				$user->groups = implode(',', $names);
-				$users[] = $user;
-			}
-		}
-
-		$this->ok(['users' => $users]);
+		$this->ok(['users' => $this->Config_m->get_admins(self::STAFF_GROUP_IDS)]);
 	}
 
 	/** POST admin/config/admins body: {first_name, last_name, identity?, email, phone, company, password, password_confirm} */

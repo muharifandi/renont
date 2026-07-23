@@ -7,6 +7,21 @@ class Config_m extends MY_Model {
 	{
 		return $this->db->get('bank')->result();
 	}
+
+	/**
+	 * Accounts belonging to any of $staff_group_ids, with a comma-separated `groups`
+	 * column of their (staff-only) group names -- single JOIN query, replaces the old
+	 * N+1 loop (1 query per account) that used to live in Config::admins_get().
+	 */
+	function get_admins($staff_group_ids)
+	{
+		$this->db->select('accounts.*, accounts.id as user_id, GROUP_CONCAT(groups.name) as groups', false);
+		$this->db->join('accounts_groups', 'accounts_groups.account_id = accounts.id');
+		$this->db->join('groups', 'groups.id = accounts_groups.group_id');
+		$this->db->where_in('accounts_groups.group_id', $staff_group_ids);
+		$this->db->group_by('accounts.id');
+		return $this->db->get('accounts')->result();
+	}
 	
 	function get_list_bank($param)
 	{

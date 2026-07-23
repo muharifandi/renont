@@ -33,12 +33,36 @@ class Report extends REST_Base_Controller
 		$this->ok(null, 'Admin Report API — RentOn');
 	}
 
+	/** Reports pulling more than this many days risk resource exhaustion (no LIMIT in Report_m). */
+	private $max_report_range_days = 366;
+
 	/**
 	 * @return bool whether both start_date and end_date were posted
 	 */
 	private function _has_required_report_params()
 	{
 		return (bool) ($this->post('start_date') && $this->post('end_date'));
+	}
+
+	/**
+	 * @return string|null error message if start_date/end_date are malformed, reversed,
+	 * or span more than $max_report_range_days days; null if the range is valid.
+	 */
+	private function _validate_report_date_range()
+	{
+		$start = DateTime::createFromFormat('Y-m-d', $this->post('start_date'));
+		$end = DateTime::createFromFormat('Y-m-d', $this->post('end_date'));
+
+		if (!$start || !$end) {
+			return 'Format tanggal harus YYYY-MM-DD';
+		}
+		if ($end < $start) {
+			return 'end_date tidak boleh sebelum start_date';
+		}
+		if ($start->diff($end)->days > $this->max_report_range_days) {
+			return 'Rentang tanggal maksimal '.$this->max_report_range_days.' hari';
+		}
+		return null;
 	}
 
 	private function init_report()
@@ -108,6 +132,9 @@ class Report extends REST_Base_Controller
 		if (!$this->_has_required_report_params()) {
 			return $this->validation_error(['start_date' => 'wajib diisi', 'end_date' => 'wajib diisi']);
 		}
+		if ($range_error = $this->_validate_report_date_range()) {
+			return $this->validation_error(['end_date' => $range_error]);
+		}
 
 		$param = array(
 			'ids' => $this->post('ids'),
@@ -151,6 +178,9 @@ class Report extends REST_Base_Controller
 		if (!$this->_has_required_report_params()) {
 			return $this->validation_error(['start_date' => 'wajib diisi', 'end_date' => 'wajib diisi']);
 		}
+		if ($range_error = $this->_validate_report_date_range()) {
+			return $this->validation_error(['end_date' => $range_error]);
+		}
 
 		$param = array(
 			'ids' => $this->post('ids'),
@@ -193,6 +223,9 @@ class Report extends REST_Base_Controller
 		$account = $this->require_auth_group(self::STAFF_GROUP_IDS);
 		if (!$this->_has_required_report_params()) {
 			return $this->validation_error(['start_date' => 'wajib diisi', 'end_date' => 'wajib diisi']);
+		}
+		if ($range_error = $this->_validate_report_date_range()) {
+			return $this->validation_error(['end_date' => $range_error]);
 		}
 
 		$param = array(
@@ -238,6 +271,9 @@ class Report extends REST_Base_Controller
 		if (!$this->_has_required_report_params()) {
 			return $this->validation_error(['start_date' => 'wajib diisi', 'end_date' => 'wajib diisi']);
 		}
+		if ($range_error = $this->_validate_report_date_range()) {
+			return $this->validation_error(['end_date' => $range_error]);
+		}
 
 		$param = array(
 			'ids' => $this->post('ids'),
@@ -281,6 +317,9 @@ class Report extends REST_Base_Controller
 		$account = $this->require_auth_group(self::STAFF_GROUP_IDS);
 		if (!$this->_has_required_report_params()) {
 			return $this->validation_error(['start_date' => 'wajib diisi', 'end_date' => 'wajib diisi']);
+		}
+		if ($range_error = $this->_validate_report_date_range()) {
+			return $this->validation_error(['end_date' => $range_error]);
 		}
 
 		$param = array(

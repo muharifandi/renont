@@ -104,8 +104,8 @@
 			
 			if($param['start_date'] != null && $param['start_date'] != null)
 			{
-				$this->db->where("DATE(history_agent_transaction.date_added) >='".$param['start_date']."'");
-				$this->db->where("DATE(history_agent_transaction.date_added) <='".$param['end_date']."'");
+				$this->db->where("DATE(history_agent_transaction.date_added) >=".$this->db->escape($param['start_date']));
+				$this->db->where("DATE(history_agent_transaction.date_added) <=".$this->db->escape($param['end_date']));
 			}
 			
 			if($param['group'] == true)
@@ -259,8 +259,8 @@
 			
 			if($param['start_date'] != null && $param['start_date'] != null)
 			{
-				$this->db->where("DATE(transaction_rent_vehicle.date_modified) >='".$param['start_date']."'");
-				$this->db->where("DATE(transaction_rent_vehicle.date_modified) <='".$param['end_date']."'");
+				$this->db->where("DATE(transaction_rent_vehicle.date_modified) >=".$this->db->escape($param['start_date']));
+				$this->db->where("DATE(transaction_rent_vehicle.date_modified) <=".$this->db->escape($param['end_date']));
 			}
 			
 			if($param['group'] == true)
@@ -373,8 +373,8 @@
 			
 			if($param['start_date'] != null && $param['start_date'] != null)
 			{
-				$this->db->where("DATE(customer_topup.date_added) >='".$param['start_date']."'");
-				$this->db->where("DATE(customer_topup.date_added) <='".$param['end_date']."'");
+				$this->db->where("DATE(customer_topup.date_added) >=".$this->db->escape($param['start_date']));
+				$this->db->where("DATE(customer_topup.date_added) <=".$this->db->escape($param['end_date']));
 			}
 			
 			if($param['group'] == true)
@@ -490,8 +490,8 @@
 			
 			if($param['start_date'] != null && $param['start_date'] != null)
 			{
-				$this->db->where("DATE(customer_withdraw.date_added) >='".$param['start_date']."'");
-				$this->db->where("DATE(customer_withdraw.date_added) <='".$param['end_date']."'");
+				$this->db->where("DATE(customer_withdraw.date_added) >=".$this->db->escape($param['start_date']));
+				$this->db->where("DATE(customer_withdraw.date_added) <=".$this->db->escape($param['end_date']));
 			}
 			
 			if($param['group'] == true)
@@ -615,8 +615,8 @@
 			
 			if($param['start_date'] != null && $param['start_date'] != null)
 			{
-				$this->db->where("DATE(promote_rent_vehicle.date_modified) >='".$param['start_date']."'");
-				$this->db->where("DATE(promote_rent_vehicle.date_modified) <='".$param['end_date']."'");
+				$this->db->where("DATE(promote_rent_vehicle.date_modified) >=".$this->db->escape($param['start_date']));
+				$this->db->where("DATE(promote_rent_vehicle.date_modified) <=".$this->db->escape($param['end_date']));
 			}
 			
 			if($param['group'] == true)

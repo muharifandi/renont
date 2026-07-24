@@ -248,6 +248,20 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
+        <!--
+             Skema alternatif X-App-Secret (diminta user, untuk demonstrasi/perbandingan).
+             CATATAN AUDIT: android:value di sini dikompilasi apa adanya ke AndroidManifest.xml
+             biner + resources.arsc di dalam APK jadi - sama-sama bisa diekstrak dengan
+             `aapt2 dump resources` atau `apktool d`, sama seperti BuildConfig sebelumnya.
+             Lihat BUKTI_RESVALUE_METADATA.txt untuk pembuktian langsung.
+        -->
+        <meta-data
+            android:name="ALGORITM"
+            android:value="@string/ALGORITM" />
+        <meta-data
+            android:name="SECRET_KEY"
+            android:value="@string/SECRET_KEY" />
+
         <activity
             android:name=".presentation.feature.common.locationpick.LocationPickActivity"
             android:label="@string/title_activity_location_pick"

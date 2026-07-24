@@ -1,6 +1,7 @@
 package com.nusatim.sapiriku.core.di
 
 import android.content.Context
+import android.content.pm.PackageManager
 import coil.ImageLoader
 import com.nusatim.sapiriku.core.common.Config
 import com.nusatim.sapiriku.core.database.dao.UserDao
@@ -42,14 +43,30 @@ object NetworkModule {
         }
     }
 
+    // Skema alternatif diminta user: SECRET_KEY tidak lagi dibaca dari BuildConfig,
+    // melainkan dari <meta-data> di AndroidManifest (via resValue, lihat build.gradle.kts).
+    // CATATAN AUDIT: ini bukan perbaikan keamanan - hanya memindahkan lokasi nilai yang
+    // sama-sama plaintext di dalam APK jadi, dari classes.dex ke resources.arsc /
+    // AndroidManifest biner. Lihat BUKTI_RESVALUE_METADATA.txt untuk pembuktian.
     @Provides
     @Singleton
-    fun provideAuthInterceptor(userDao: UserDao): Interceptor {
+    fun provideAuthInterceptor(
+        @ApplicationContext context: Context,
+        userDao: UserDao
+    ): Interceptor {
+        val appInfo = context.packageManager.getApplicationInfo(
+            context.packageName,
+            PackageManager.GET_META_DATA
+        )
+        val algoritm: String = appInfo.metaData.getString("ALGORITM").orEmpty()
+        val secretKey: String = appInfo.metaData.getString("SECRET_KEY").orEmpty()
+
         return Interceptor { chain ->
             val user = runBlocking { userDao.getUser().firstOrNull() }
             val request = chain.request().newBuilder()
                 .header("User-Agent", BuildConfig.APPLICATION_ID)
-                .header("X-App-Secret", BuildConfig.SECRET_KEY)
+                .header("X-App-Secret", secretKey)
+                .header("X-App-Secret-Algorithm", algoritm)
                 .apply {
                     user?.key?.let { header("key", it) }
                 }

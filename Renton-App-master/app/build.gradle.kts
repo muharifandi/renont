@@ -63,17 +63,26 @@ android {
             applicationIdSuffix = ".dev"
             val env = loadEnv("configdev.env")
             buildConfigField("String", "BASE_URL", "\"${env.getProperty("BASE_URL") ?: ""}\"")
-            buildConfigField("String", "SECRET_KEY", "\"${env.getProperty("SECRET_KEY") ?: ""}\"")
             resValue("string", "google_maps_key", env.getProperty("MAPS_API_KEY") ?: "")
             resValue("string", "app_name", "Sapiriku Dev")
+            // Skema alternatif diminta user: taruh secret via resValue -> meta-data
+            // AndroidManifest, dibaca runtime lewat PackageManager (bukan BuildConfig).
+            // CATATAN AUDIT: skema ini TIDAK menyembunyikan nilai apa pun dari APK jadi -
+            // resValue tetap dikompilasi plaintext ke resources.arsc, ekstraksi sama
+            // mudahnya (lihat BUKTI_RESVALUE_METADATA.txt). Dipertahankan di sini hanya
+            // untuk demonstrasi/perbandingan, BUKAN direkomendasikan sebagai fix.
+            resValue("string", "ALGORITM", env.getProperty("ALGORITM") ?: "")
+            resValue("string", "SECRET_KEY", env.getProperty("SECRET_KEY") ?: "")
         }
         create("production") {
             dimension = "environment"
             val env = loadEnv("configprod.env")
             buildConfigField("String", "BASE_URL", "\"${env.getProperty("BASE_URL") ?: ""}\"")
-            buildConfigField("String", "SECRET_KEY", "\"${env.getProperty("SECRET_KEY") ?: ""}\"")
             resValue("string", "google_maps_key", env.getProperty("MAPS_API_KEY") ?: "")
             resValue("string", "app_name", "Sapiriku")
+            // Lihat catatan audit di flavor "development" di atas - berlaku sama di sini.
+            resValue("string", "ALGORITM", env.getProperty("ALGORITM") ?: "")
+            resValue("string", "SECRET_KEY", env.getProperty("SECRET_KEY") ?: "")
         }
     }
 

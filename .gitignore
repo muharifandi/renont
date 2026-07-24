@@ -19,3 +19,4 @@ RentonBachkEnd-main/.env.*
 
 # Dump database berisi data pelanggan asli
 **/db_rentone_06_Dec_2021.sql
+**/renton_2026_v1.aql.sql
